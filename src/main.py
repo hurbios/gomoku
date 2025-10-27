@@ -7,8 +7,8 @@ import pygame
 # These values can be changed
 
 # Color of the player pieces (r,g,b)
-PLAYER1_COLOR = (255, 255, 255)
-PLAYER2_COLOR = (0, 0, 0)
+PLAYER1_COLOR = (0, 0, 0)
+PLAYER2_COLOR = (255, 255, 255)
 # Color of the game area (r,g,b)
 BACKGROUND_COLOR = (168, 127, 127)
 GRID_COLOR = (64, 64, 64)
