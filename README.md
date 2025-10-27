@@ -11,3 +11,7 @@ This is a learning project with main focus on the algorithm.
 - Poetry shell: run `poetry shell` and inside shell `python3.12 src/index.py`
 - Use start script: run `sh run.sh`
     
+## Lint
+- Pylint config is created with: `poetry run pylint --generate-rcfile >> .pylintrc`
+- The pylint can be run with: `poetry run pylint src`
+    - (This might take a few seconds to output something)
