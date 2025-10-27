@@ -29,6 +29,11 @@ AREA_WIDTH = BLOCK_SIZE*BLOCKS_IN_SIDE          # Width of the game area
 AREA_HEIGHT = BLOCK_SIZE*BLOCKS_IN_SIDE         # Height of the game area
 
 
+########################
+####  Main Program  ####
+########################
+
+# Init pygame
 
 pygame.init()
 display = pygame.display.set_mode((AREA_WIDTH, AREA_HEIGHT))
@@ -37,6 +42,8 @@ player1 = True
 player1_pieces = []
 player2_pieces = []
 
+
+# Pygame helper functions
 
 def draw_game_area():
     display.fill(BACKGROUND_COLOR)
@@ -58,7 +65,6 @@ def draw_game_area():
              GRID_SIZE
         )
 
-
 def draw_player_pieces(pieces, color):
     for piece in pieces:
         pygame.draw.circle(
@@ -68,6 +74,8 @@ def draw_player_pieces(pieces, color):
             PIECE_SIZE
         )
 
+
+# Main UI loop
 
 while True:
     for event in pygame.event.get():
