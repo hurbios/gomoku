@@ -1,5 +1,7 @@
 import sys
 import pygame
+import time
+import game_board
 
 ####################
 ####  UI SETUP  ####
@@ -38,9 +40,11 @@ AREA_HEIGHT = BLOCK_SIZE*BLOCKS_IN_SIDE         # Height of the game area
 pygame.init()
 display = pygame.display.set_mode((AREA_WIDTH, AREA_HEIGHT))
 
-player1 = True
+player = 1
 player1_pieces = []
 player2_pieces = []
+
+board = game_board.Board(BLOCKS_IN_SIDE,BLOCKS_IN_SIDE)
 
 
 # Pygame helper functions
@@ -74,6 +78,20 @@ def draw_player_pieces(pieces, color):
             PIECE_SIZE
         )
 
+def draw_game_win(player):
+    draw_game_area()
+    font = pygame.font.SysFont("Arial", 42)
+    text = font.render(f"Player{player} wins!", True, (255, 0, 0))
+    display.blit(text, (100, 50))
+    draw_player_pieces(board.get_player_pieces(1), PLAYER1_COLOR)
+    draw_player_pieces(board.get_player_pieces(2), PLAYER2_COLOR)
+    pygame.display.flip()
+
+def draw_game():
+    draw_game_area()
+    draw_player_pieces(board.get_player_pieces(1), PLAYER1_COLOR)
+    draw_player_pieces(board.get_player_pieces(2), PLAYER2_COLOR)
+    pygame.display.flip()
 
 # Main UI loop
 
@@ -81,14 +99,13 @@ while True:
     for event in pygame.event.get():
         if event.type == pygame.MOUSEBUTTONDOWN:
             new_piece = (event.pos[0]//BLOCK_SIZE, event.pos[1]//BLOCK_SIZE)
-            if new_piece not in player1_pieces and new_piece not in player2_pieces:
-                player_pieces = player1_pieces if player1 else player2_pieces
-                player_pieces.append(new_piece)
-                player1 = not player1
+            can_move, wins = board.add_move(new_piece, player)
+            if wins:
+                draw_game_win(player)
+                time.sleep(5)
+                board.reset()
+            if can_move:
+                player = 2 if player == 1 else 1
         if event.type == pygame.QUIT:
             sys.exit()
-
-    draw_game_area()
-    draw_player_pieces(player1_pieces, PLAYER1_COLOR)
-    draw_player_pieces(player2_pieces, PLAYER2_COLOR)
-    pygame.display.flip()
+    draw_game()
