@@ -1,6 +1,6 @@
 import sys
-import pygame
 import time
+import pygame
 import game_board
 
 ####################
@@ -78,7 +78,7 @@ def draw_player_pieces(pieces, color):
             PIECE_SIZE
         )
 
-def draw_game_win(player):
+def draw_game_win():
     draw_game_area()
     font = pygame.font.SysFont("Arial", 42)
     text = font.render(f"Player{player} wins!", True, (255, 0, 0))
@@ -101,8 +101,8 @@ while True:
             new_piece = (event.pos[0]//BLOCK_SIZE, event.pos[1]//BLOCK_SIZE)
             can_move, wins = board.add_move(new_piece, player)
             if wins:
-                draw_game_win(player)
-                time.sleep(5)
+                draw_game_win()
+                time.sleep(2)
                 board.reset()
             if can_move:
                 player = 2 if player == 1 else 1
