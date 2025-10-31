@@ -1,3 +1,4 @@
+[![Lint and test](https://github.com/hurbios/gomoku/actions/workflows/pipeline.yml/badge.svg)](https://github.com/hurbios/gomoku/actions/workflows/pipeline.yml)
 # gomoku
 This is Gomuku game with AI. The used AI algorithm is minimax enhanced with alpha-beta pruning.
 
@@ -15,3 +16,4 @@ This is a learning project with main focus on the algorithm.
 - Pylint config is created with: `poetry run pylint --generate-rcfile >> .pylintrc`
 - The pylint can be run with: `poetry run pylint src`
     - (This might take a few seconds to output something)
+- There is a Github Actions workflow that runs the pylint (click the badge to see results)
