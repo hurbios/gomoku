@@ -6,10 +6,13 @@ The used language is Python
 
 This is a learning project with main focus on the algorithm.
 
+## How to install
+(This app requires Python 3.12 because pygame does not support newer versions.)
+- Run `poetry install`
 
 ## How to run
-- Poetry directly: run `poetry run python3.12 src/main.py`
-- Poetry shell: run `poetry shell` and inside shell `python3.12 src/index.py`
+- Poetry directly: run `poetry run python3.12 -m gomoku.main`
+- Poetry shell: run `poetry shell` and inside shell `python3.12 -m gomoku.main`
 - Use start script: run `sh run.sh`
     
 ## Run unit tests

@@ -1,7 +1,6 @@
 import sys
 import time
 import pygame
-import core.game_board as game_board
 
 ####################
 ####  UI SETUP  ####

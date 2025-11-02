@@ -1,2 +1,2 @@
 #!/bin/bash
-poetry run python3.12 src/gomuku/main.py
+poetry run python3.12 -m gomoku.main

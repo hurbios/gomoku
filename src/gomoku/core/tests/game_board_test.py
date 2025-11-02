@@ -1,6 +1,6 @@
 import unittest
-from unittest.mock import Mock, ANY
-from gomuku.core.game_board import Board
+# from unittest.mock import Mock, ANY
+from gomoku.core.game_board import Board
 
 
 class TestGameBoard(unittest.TestCase):
@@ -22,12 +22,12 @@ class TestGameBoard(unittest.TestCase):
         ]
         for y,row in enumerate(play):
             for x,col in enumerate(row):
-                ok, has_won = self.board.add_move((x,y),play[y][x])
-                if((x,y) == (2,4)):
+                ok, has_won = self.board.add_move((x,y),col)
+                if(x,y) == (2,4):
                     self.assertEqual((ok, has_won), (True,True), f"coordinates ({x},{y})")
-                elif((x,y) in [(2,0),(2,1),(2,2),(2,3)]):
+                elif(x,y) in [(2,0),(2,1),(2,2),(2,3)]:
                     self.assertEqual((ok, has_won), (True,False), f"coordinates ({x},{y})")
-                elif((x,y) in [(3,0),(3,1),(3,2),(3,3),(1,4)]):
+                elif(x,y) in [(3,0),(3,1),(3,2),(3,3),(1,4)]:
                     self.assertEqual((ok, has_won), (True,False), f"coordinates ({x},{y})")
                 else:
                     self.assertEqual((ok, has_won), (False,False), f"coordinates ({x},{y})")
@@ -42,17 +42,17 @@ class TestGameBoard(unittest.TestCase):
         ]
         for y,row in enumerate(play):
             for x,col in enumerate(row):
-                ok, has_won = self.board.add_move((x,y),play[y][x])
-                if((x,y) == (4,2)):
+                ok, has_won = self.board.add_move((x,y),col)
+                if(x,y) == (4,2):
                     self.assertEqual((ok, has_won), (True,True), f"coordinates ({x},{y})")
-                elif((x,y) in [(0,2),(1,2),(2,2),(3,2),(2,3)]):
+                elif(x,y) in [(0,2),(1,2),(2,2),(3,2),(2,3)]:
                     self.assertEqual((ok, has_won), (True,False), f"coordinates ({x},{y})")
-                elif((x,y) in [(1,0),(3,0),(3,1),(3,3),(1,4),(2,4)]):
+                elif(x,y) in [(1,0),(3,0),(3,1),(3,3),(1,4),(2,4)]:
                     self.assertEqual((ok, has_won), (True,False), f"coordinates ({x},{y})")
                 else:
                     self.assertEqual((ok, has_won), (False,False), f"coordinates ({x},{y})")
-    
-    def test_add_move_horizontal_win(self):
+
+    def test_add_move_diagonal_win(self):
         play = [
             [1,2,0,2,0],
             [0,1,0,2,0],
@@ -62,17 +62,17 @@ class TestGameBoard(unittest.TestCase):
         ]
         for y,row in enumerate(play):
             for x,col in enumerate(row):
-                ok, has_won = self.board.add_move((x,y),play[y][x])
-                if((x,y) == (4,4)):
+                ok, has_won = self.board.add_move((x,y),col)
+                if(x,y) == (4,4):
                     self.assertEqual((ok, has_won), (True,True), f"coordinates ({x},{y})")
-                elif((x,y) in [(0,0),(1,1),(2,2),(3,3),(2,3)]):
+                elif(x,y) in [(0,0),(1,1),(2,2),(3,3),(2,3)]:
                     self.assertEqual((ok, has_won), (True,False), f"coordinates ({x},{y})")
-                elif((x,y) in [(1,0),(3,0),(3,1),(1,4),(2,4),(3,4)]):
+                elif(x,y) in [(1,0),(3,0),(3,1),(1,4),(2,4),(3,4)]:
                     self.assertEqual((ok, has_won), (True,False), f"coordinates ({x},{y})")
                 else:
                     self.assertEqual((ok, has_won), (False,False), f"coordinates ({x},{y})")
-    
-    def test_add_move_inverse_horizontal_win(self):
+
+    def test_add_move_inverse_diagonal_win(self):
         play = [
             [0,2,2,2,1],
             [0,0,0,1,0],
@@ -82,20 +82,20 @@ class TestGameBoard(unittest.TestCase):
         ]
         for y,row in enumerate(play):
             for x,col in enumerate(row):
-                ok, has_won = self.board.add_move((x,y),play[y][x])
-                if((x,y) == (0,4)):
+                ok, has_won = self.board.add_move((x,y),col)
+                if(x,y) == (0,4):
                     self.assertEqual((ok, has_won), (True,True), f"coordinates ({x},{y})")
-                elif((x,y) in [(4,0),(3,1),(2,2),(1,3),(2,3)]):
+                elif(x,y) in [(4,0),(3,1),(2,2),(1,3),(2,3)]:
                     self.assertEqual((ok, has_won), (True,False), f"coordinates ({x},{y})")
-                elif((x,y) in [(1,0),(2,0),(3,0),(1,4),(2,4),(3,4)]):
+                elif(x,y) in [(1,0),(2,0),(3,0),(1,4),(2,4),(3,4)]:
                     self.assertEqual((ok, has_won), (True,False), f"coordinates ({x},{y})")
                 else:
                     self.assertEqual((ok, has_won), (False,False), f"coordinates ({x},{y})")
-    
+
     def test_add_move_existing_piece(self):
         ok, has_won = self.board.add_move((1,1),1)
         self.assertEqual((ok, has_won), (True,False))
-        
+
         ok, has_won = self.board.add_move((1,1),1)
         self.assertEqual((ok, has_won), (False,False))
 
@@ -112,15 +112,15 @@ class TestGameBoard(unittest.TestCase):
         ]
         for i,row in enumerate(play):
             for y,col in enumerate(row):
-                self.board.add_move((y,i),play[i][y])
+                self.board.add_move((y,i),col)
 
         self.assertEqual(self.board.get_player_pieces(1), [(2,0),(2,1),(2,2),(2,3),(2,4)])
         self.assertEqual(self.board.get_player_pieces(2), [(3,0),(3,1),(3,2),(3,3),(1,4)])
-    
+
     def test_reset(self):
         ok, has_won = self.board.add_move((1,1),1)
         self.assertEqual((ok, has_won), (True,False))
-        
+
         ok, has_won = self.board.add_move((1,1),1)
         self.assertEqual((ok, has_won), (False,False))
         self.assertEqual(self.board.get_player_pieces(1), [(1,1)])
@@ -130,4 +130,3 @@ class TestGameBoard(unittest.TestCase):
         self.assertEqual(self.board.get_player_pieces(1), [])
         ok, has_won = self.board.add_move((1,1),1)
         self.assertEqual((ok, has_won), (True,False))
-        
