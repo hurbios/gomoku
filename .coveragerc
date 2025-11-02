@@ -1,3 +1,3 @@
 [run]
 source = src/gomoku
-omit = src/gomokutests/**, src/gomoku/main.py, src/gomoku/ui/**
+omit = src/gomokutests/**, src/gomoku/main.py, src/gomoku/ui/**, **/__init__.py
