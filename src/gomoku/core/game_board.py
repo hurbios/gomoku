@@ -13,7 +13,10 @@ class Board:
     def __count_pieces_direction(self, count:int, position:tuple[int, int], player:int, direction:tuple[int, int]):
         if count >= 4:
             return 4
-        if self.__width < (position[0]+direction[0]) < 0 or self.__height < (position[1]+direction[1]) < 0:
+        if (self.__width < (position[0]+direction[0]) or
+            (position[0]+direction[0]) < 0 or
+            self.__height < (position[1]+direction[1]) or
+            (position[1]+direction[1]) < 0):
             return count
         if self.__moves[position[0]+direction[0]][position[1]+direction[1]] is not player:
             return count
@@ -29,6 +32,11 @@ class Board:
         return max_in_row >=4
 
     def add_move(self, move: tuple[int, int], player:int):
+        if ((self.__width < move[0]) or (move[0] < 0) or
+                (self.__width < move[1]) or (move[1] < 0) or
+                (self.__height < move[0]) or (move[0] < 0) or
+                (self.__height < move[1]) or (move[1] < 0)):
+            return False, False
         if self.__moves[move[0]][move[1]]:
             return False, False
         if player not in [1,2]:

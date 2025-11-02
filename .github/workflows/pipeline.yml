@@ -17,7 +17,13 @@ jobs:
         run: |
           pip install poetry
           poetry install
+      - name: Run tests
+        run: poetry run coverage run --branch -m pytest
+      - name: Coverage report
+        run: poetry run coverage xml
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
       - name: Check style
         run: poetry run pylint src
-      - name: Run tests
-        run: poetry run pytest

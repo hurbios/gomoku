@@ -1,4 +1,4 @@
-[![Lint and test](https://github.com/hurbios/gomoku/actions/workflows/pipeline.yml/badge.svg)](https://github.com/hurbios/gomoku/actions/workflows/pipeline.yml)
+[![Lint and test](https://github.com/hurbios/gomoku/actions/workflows/pipeline.yml/badge.svg)](https://github.com/hurbios/gomoku/actions/workflows/pipeline.yml)[![codecov](https://codecov.io/github/hurbios/gomoku/graph/badge.svg?token=TGI5QXQLXL)](https://codecov.io/github/hurbios/gomoku)
 # gomoku
 This is Gomuku game with AI. The used AI algorithm is minimax enhanced with alpha-beta pruning.
 
@@ -15,9 +15,9 @@ This is a learning project with main focus on the algorithm.
 - Poetry shell: run `poetry shell` and inside shell `python3.12 -m gomoku.main`
 - Use start script: run `sh run.sh`
     
-## Run unit tests
-- Run using poetry `poetry run pytest`
-- Use test script: run `sh test.sh`
+## Run unit tests and test coverage
+- Run using poetry: `poetry run pytest`
+- Run test script for coverage test and report: `sh test.sh`
 
 ## Lint
 - Pylint config is created with: `poetry run pylint --generate-rcfile >> .pylintrc`

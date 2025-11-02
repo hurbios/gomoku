@@ -1,6 +1,7 @@
 import unittest
 # from unittest.mock import Mock, ANY
 from gomoku.core.game_board import Board
+from gomoku.ui import game_board_ui
 
 
 class TestGameBoard(unittest.TestCase):
@@ -100,6 +101,22 @@ class TestGameBoard(unittest.TestCase):
         self.assertEqual((ok, has_won), (False,False))
 
         ok, has_won = self.board.add_move((1,1),2)
+        self.assertEqual((ok, has_won), (False,False))
+
+    def test_add_add_piece_outside_area(self):
+        ok, has_won = self.board.add_move((1,1),1)
+        self.assertEqual((ok, has_won), (True,False))
+
+        ok, has_won = self.board.add_move((-1,1),1)
+        self.assertEqual((ok, has_won), (False,False))
+
+        ok, has_won = self.board.add_move((1,-1),1)
+        self.assertEqual((ok, has_won), (False,False))
+
+        ok, has_won = self.board.add_move((1,game_board_ui.BLOCKS_PER_SIDE+1),1)
+        self.assertEqual((ok, has_won), (False,False))
+
+        ok, has_won = self.board.add_move((game_board_ui.BLOCKS_PER_SIDE+1,1),1)
         self.assertEqual((ok, has_won), (False,False))
 
     def test_get_player_pieces(self):
