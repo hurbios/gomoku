@@ -17,8 +17,8 @@ GRID_COLOR = (64, 64, 64)
 GRID_SIZE = 2
 # Height and width of the block (including grid) in px
 BLOCK_SIZE = 40
-# Amount of blocks per side so the game area is: BLOCKS_IN_SIDE x BLOCKS_IN_SIDE
-BLOCKS_IN_SIDE = 20
+# Amount of blocks per side so the game area is: BLOCKS_PER_SIDE x BLOCKS_PER_SIDE
+BLOCKS_PER_SIDE = 20
 
 
 # These values are derived from above values and should not be changed
@@ -26,13 +26,9 @@ BLOCKS_IN_SIDE = 20
 BLOCK_OFFSET = BLOCK_SIZE // 2                  # Offset for center of the block
 PIECE_SIZE = BLOCK_SIZE // 2 - GRID_SIZE * 2    # Player piece size in pixels.
 
-AREA_WIDTH = BLOCK_SIZE*BLOCKS_IN_SIDE          # Width of the game area
-AREA_HEIGHT = BLOCK_SIZE*BLOCKS_IN_SIDE         # Height of the game area
+AREA_WIDTH = BLOCK_SIZE*BLOCKS_PER_SIDE          # Width of the game area
+AREA_HEIGHT = BLOCK_SIZE*BLOCKS_PER_SIDE         # Height of the game area
 
-
-########################
-####  Main Program  ####
-########################
 
 class BoardUI:
     def __init__(self, board):
@@ -44,15 +40,12 @@ class BoardUI:
         self.player2_pieces = []
 
         self.board = board
-        # self.board = game_board.Board(BLOCKS_IN_SIDE,BLOCKS_IN_SIDE)
 
-
-    # Pygame helper functions
-
+    # Draws background and grid
     def draw_game_area(self):
         self.display.fill(BACKGROUND_COLOR)
 
-        for i in range(1,BLOCKS_IN_SIDE):
+        for i in range(1,BLOCKS_PER_SIDE):
             pygame.draw.line(
                 self.display,
                 GRID_COLOR,
@@ -69,6 +62,7 @@ class BoardUI:
                 GRID_SIZE
             )
 
+    # Draws one players pieces
     def draw_player_pieces(self,pieces, color):
         for piece in pieces:
             pygame.draw.circle(
@@ -78,24 +72,27 @@ class BoardUI:
                 PIECE_SIZE
             )
 
-    def draw_game_win(self):
+    # Draws the game area, player pieces draws additional if some additional drawing is definer
+    def draw_game(self,additional_draw=None):
         self.draw_game_area()
-        font = pygame.font.SysFont("Arial", 42)
-        text = font.render(f"Player{self.player} wins!", True, (255, 0, 0))
-        self.display.blit(text, (100, 50))
+        if additional_draw:
+            additional_draw(self)
         self.draw_player_pieces(self.board.get_player_pieces(1), PLAYER1_COLOR)
         self.draw_player_pieces(self.board.get_player_pieces(2), PLAYER2_COLOR)
         pygame.display.flip()
 
-    def draw_game(self):
-        self.draw_game_area()
-        self.draw_player_pieces(self.board.get_player_pieces(1), PLAYER1_COLOR)
-        self.draw_player_pieces(self.board.get_player_pieces(2), PLAYER2_COLOR)
-        pygame.display.flip()
+    # Normal game draw but add just a text about the winning player
+    def draw_game_win(self):
+        def draw_winning_text(self):
+            font = pygame.font.SysFont("Arial", 42)
+            text = font.render(f"Player{self.player} wins!", True, (255, 0, 0))
+            self.display.blit(text, (100, 50))
+        self.draw_game(draw_winning_text)
 
     # Main UI loop
     def run(self):
         while True:
+            # Check user inputs
             for event in pygame.event.get():
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     new_piece = (event.pos[0]//BLOCK_SIZE, event.pos[1]//BLOCK_SIZE)
@@ -108,4 +105,5 @@ class BoardUI:
                         self.player = 2 if self.player == 1 else 1
                 if event.type == pygame.QUIT:
                     sys.exit()
+            # Refresh the game UI
             self.draw_game()
