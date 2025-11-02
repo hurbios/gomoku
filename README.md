@@ -7,17 +7,23 @@ The used language is Python
 This is a learning project with main focus on the algorithm.
 
 ## How to install
-(This app requires Python 3.12 because pygame does not support newer versions.)
+(This app requires Python 3.12 because pygame does not support newer versions)
 - Run `poetry install`
 
 ## How to run
+Options for running:
 - Poetry directly: run `poetry run python3.12 -m gomoku.main`
 - Poetry shell: run `poetry shell` and inside shell `python3.12 -m gomoku.main`
 - Use start script: run `sh run.sh`
     
 ## Run unit tests and test coverage
-- Run using poetry: `poetry run pytest`
-- Run test script for coverage test and report: `sh test.sh`
+Options for testing and coverage:
+- Testing
+    - Run using poetry: `poetry run pytest`
+    - Poetry shell: run `poetry shell` and inside shell `pytest`
+- Test coverage
+    - For coverage test and report, run a script: `sh test.sh`
+    - There is a Github Actions workflow that runs the coverage (see the badge for coverage percentage)
 
 ## Lint
 - Pylint config is created with: `poetry run pylint --generate-rcfile >> .pylintrc`
