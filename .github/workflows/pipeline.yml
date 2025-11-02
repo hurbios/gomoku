@@ -19,3 +19,5 @@ jobs:
           poetry install --no-root
       - name: Check style
         run: poetry run pylint src
+      - name: Run tests
+        run: poetry run pytest
