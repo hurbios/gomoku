@@ -92,7 +92,7 @@ class TestGameBoard(unittest.TestCase):
                     self.assertEqual((ok, has_won), (True,False), f"coordinates ({x},{y})")
                 else:
                     self.assertEqual((ok, has_won), (False,False), f"coordinates ({x},{y})")
-    
+
     def test_add_move_horizontal_win_6_pieces(self):
         play = [
             [0,0,1,2,0,0],
@@ -114,7 +114,7 @@ class TestGameBoard(unittest.TestCase):
                 else:
                     self.assertEqual((ok, has_won), (False,False), f"coordinates ({x},{y})")
         ok, has_won = self.board.add_move((2,5),1)
-        self.assertEqual((ok, has_won), (True,True), f"coordinates ({x},{y})")
+        self.assertEqual((ok, has_won), (True,True), "coordinates (2,5)")
 
     def test_add_move_existing_piece(self):
         ok, has_won = self.board.add_move((1,1),1)

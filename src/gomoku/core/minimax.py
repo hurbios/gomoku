@@ -14,15 +14,10 @@ class Minimax:
         direction_counts.sort(reverse=True)
         return direction_counts
 
-    # TODO: temp return only direction and count
+    # temp return only direction and count, fix later
     def get_next_move(self, last_move: tuple[int, int]):
         # player1 = self.__board.get_player_pieces(1) # User
         # player2 = self.__board.get_player_pieces(2) # AI
 
         # Check how many pieces user has for each direction
         return self.get_direction_counts(last_move, 1)[0]
-        
-
-        
-
-        
