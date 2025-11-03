@@ -30,6 +30,10 @@ class TestMinimax(unittest.TestCase):
         for y,row in enumerate(play):
             for x,col in enumerate(row):
                 self.board.add_move((x,y),col)
-        self.assertEqual(self.minimax.get_next_move((2,4)), (5,'horizontal'))
-        self.assertEqual(self.minimax.get_next_move((4,5)), (3,'vertical'))
-        self.assertEqual(self.minimax.get_next_move((5,5)), (4,'horizontal'))
+        self.assertEqual(self.minimax.get_direction_counts((2,4),1)[0], (5,'horizontal'))
+        self.assertEqual(self.minimax.get_direction_counts((4,5),1)[0], (3,'vertical'))
+        self.assertEqual(self.minimax.get_direction_counts((5,5),1)[0], (4,'horizontal'))
+
+        self.assertEqual(self.minimax.get_next_move((2,4)), ((2,5),None))
+        self.assertEqual(self.minimax.get_next_move((4,5)), (None,(3,5)))
+        self.assertEqual(self.minimax.get_next_move((5,5)), (None,(5,2)))
