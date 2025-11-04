@@ -104,6 +104,7 @@ class BoardUI:
                     self.draw_game_win()
                     time.sleep(2)
                     self.board.reset()
+
                 if can_move:
                     self.player = 2 if self.player == 1 else 1
             # Check user inputs
@@ -117,7 +118,7 @@ class BoardUI:
                             self.draw_game_win()
                             time.sleep(2)
                             self.board.reset()
-                        if can_move:
+                        if can_move and not wins:
                             self.player = 2 if self.player == 1 else 1
                 if event.type == pygame.QUIT:
                     sys.exit()
