@@ -25,6 +25,7 @@ class Minimax:
         # player2 = self.__board.get_player_pieces(2) # AI
 
         # Check how many pieces user has for each direction
-
-        direction = self.get_direction_counts(last_move, PLAYER['USER'])[0][1]
-        return self.__board.get_next_free_coordinates(last_move, PLAYER['USER'], direction)
+        directions = self.get_direction_counts(last_move, PLAYER['USER'])
+        all_tuples = [self.__board.get_next_free_coordinates(last_move, PLAYER['USER'], direction[1]) for direction in directions]
+        flattened = [x for tup in all_tuples for x in tup if x is not None]
+        return next(iter(flattened))

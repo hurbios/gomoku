@@ -34,6 +34,6 @@ class TestMinimax(unittest.TestCase):
         self.assertEqual(self.minimax.get_direction_counts((4,5),1)[0], (3,'vertical'))
         self.assertEqual(self.minimax.get_direction_counts((5,5),1)[0], (4,'horizontal'))
 
-        self.assertEqual(self.minimax.get_next_move((2,4)), ((2,5),None))
-        self.assertEqual(self.minimax.get_next_move((4,5)), (None,(3,5)))
-        self.assertEqual(self.minimax.get_next_move((5,5)), (None,(5,2)))
+        self.assertEqual(self.minimax.get_next_move((2,4)), (2,5))
+        self.assertEqual(self.minimax.get_next_move((4,5)), (3,5))
+        self.assertEqual(self.minimax.get_next_move((5,5)), (5,2))

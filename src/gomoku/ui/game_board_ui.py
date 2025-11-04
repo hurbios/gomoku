@@ -1,6 +1,8 @@
 import sys
 import time
 import pygame
+from gomoku.core.minimax import Minimax
+from gomoku.core.game_board import Board
 
 ####################
 ####  UI SETUP  ####
@@ -31,7 +33,7 @@ AREA_HEIGHT = BLOCK_SIZE*BLOCKS_PER_SIDE         # Height of the game area
 
 
 class BoardUI:
-    def __init__(self, board):
+    def __init__(self, board:Board, minimax:Minimax):
         pygame.init()
         self.display = pygame.display.set_mode((AREA_WIDTH, AREA_HEIGHT))
 
@@ -40,6 +42,7 @@ class BoardUI:
         self.player2_pieces = []
 
         self.board = board
+        self.minimax = minimax
 
     # Draws background and grid
     def draw_game_area(self):
@@ -91,18 +94,31 @@ class BoardUI:
 
     # Main UI loop
     def run(self):
+        prev_piece = (0,0)
         while True:
+            if self.player == 2:
+                time.sleep(0.5)
+                new_piece = self.minimax.get_next_move(prev_piece)
+                can_move, wins = self.board.add_move(new_piece, self.player) if new_piece else None,None
+                if wins:
+                    self.draw_game_win()
+                    time.sleep(2)
+                    self.board.reset()
+                if can_move:
+                    self.player = 2 if self.player == 1 else 1
             # Check user inputs
             for event in pygame.event.get():
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    new_piece = (event.pos[0]//BLOCK_SIZE, event.pos[1]//BLOCK_SIZE)
-                    can_move, wins = self.board.add_move(new_piece, self.player)
-                    if wins:
-                        self.draw_game_win()
-                        time.sleep(2)
-                        self.board.reset()
-                    if can_move:
-                        self.player = 2 if self.player == 1 else 1
+                    if self.player == 1:
+                        new_piece = (event.pos[0]//BLOCK_SIZE, event.pos[1]//BLOCK_SIZE)
+                        prev_piece = new_piece
+                        can_move, wins = self.board.add_move(new_piece, self.player)
+                        if wins:
+                            self.draw_game_win()
+                            time.sleep(2)
+                            self.board.reset()
+                        if can_move:
+                            self.player = 2 if self.player == 1 else 1
                 if event.type == pygame.QUIT:
                     sys.exit()
             # Refresh the game UI
