@@ -116,6 +116,9 @@ class TestGameBoard(unittest.TestCase):
         ok, has_won = self.board.add_move((2,5),1)
         self.assertEqual((ok, has_won), (True,True), "coordinates (2,5)")
 
+    def test_get_direction_count_unknown(self):
+        self.assertEqual(0, self.board.get_direction_count((2,0),1,'unknown'))
+
     def test_add_move_existing_piece(self):
         ok, has_won = self.board.add_move((1,1),1)
         self.assertEqual((ok, has_won), (True,False))
@@ -170,3 +173,22 @@ class TestGameBoard(unittest.TestCase):
         self.assertEqual(self.board.get_player_pieces(1), [])
         ok, has_won = self.board.add_move((1,1),1)
         self.assertEqual((ok, has_won), (True,False))
+
+    def test_next_free_coordinates(self):
+        self.board = Board(5,5)
+        play = [
+            [0,0,1,2,0],
+            [0,0,1,2,0],
+            [0,0,1,2,0],
+            [0,0,1,2,0],
+            [0,2,1,0,0]
+        ]
+        for i,row in enumerate(play):
+            for y,col in enumerate(row):
+                self.board.add_move((y,i),col)
+
+        self.assertEqual(self.board.get_next_free_coordinates((2,0),1,'vertical'), (None,(1,0)))
+        self.assertEqual(self.board.get_next_free_coordinates((2,0),1,'horizontal'), (None,None))
+        self.assertEqual(self.board.get_next_free_coordinates((2,0),1,'diagonal'), (None,None))
+        self.assertEqual(self.board.get_next_free_coordinates((2,0),1,'inverse_diagonal'), (None,(1,1)))
+        self.assertEqual(self.board.get_next_free_coordinates((2,0),1,'asdf'), (None,None))

@@ -45,6 +45,8 @@ class Board:
                 return (1
                         + (self.__count_pieces_direction(0,position,player,(-1,-1))
                         + self.__count_pieces_direction(0,position,player,(1,1))))
+            case _:
+                return 0
 
     def __player_wins(self, move: tuple[int, int], player:int):
         max_in_row = max(
