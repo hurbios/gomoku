@@ -30,13 +30,21 @@ class Board:
     def get_direction_count(self, position:tuple[int, int], player:int, direction:str):
         match direction:
             case 'vertical':
-                return 1 + (self.__count_pieces_direction(0,position,player,(1,0)) + self.__count_pieces_direction(0,position,player,(-1,0)))
+                return (1
+                        + (self.__count_pieces_direction(0,position,player,(1,0))
+                        + self.__count_pieces_direction(0,position,player,(-1,0))))
             case 'horizontal':
-                return 1 + (self.__count_pieces_direction(0,position,player,(0,1)) + self.__count_pieces_direction(0,position,player,(0,-1)))
+                return (1
+                        + (self.__count_pieces_direction(0,position,player,(0,1))
+                        + self.__count_pieces_direction(0,position,player,(0,-1))))
             case 'inverse_diagonal':
-                return 1 + (self.__count_pieces_direction(0,position,player,(1,-1)) + self.__count_pieces_direction(0,position,player,(-1,1)))
+                return (1
+                        + (self.__count_pieces_direction(0,position,player,(1,-1))
+                        + self.__count_pieces_direction(0,position,player,(-1,1))))
             case 'diagonal':
-                return 1 + (self.__count_pieces_direction(0,position,player,(-1,-1)) + self.__count_pieces_direction(0,position,player,(1,1)))
+                return (1
+                        + (self.__count_pieces_direction(0,position,player,(-1,-1))
+                        + self.__count_pieces_direction(0,position,player,(1,1))))
 
     def __player_wins(self, move: tuple[int, int], player:int):
         max_in_row = max(

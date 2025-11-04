@@ -28,4 +28,3 @@ class Minimax:
 
         direction = self.get_direction_counts(last_move, PLAYER['USER'])[0][1]
         return self.__board.get_next_free_coordinates(last_move, PLAYER['USER'], direction)
-        
