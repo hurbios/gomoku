@@ -92,6 +92,14 @@ class BoardUI:
             self.display.blit(text, (100, 50))
         self.draw_game(draw_winning_text)
 
+    def actions_after_player_move(self, can_move, wins):
+        if wins:
+            self.draw_game_win()
+            time.sleep(2)
+            self.board.reset()
+        if can_move and not wins:
+            self.player = 2 if self.player == 1 else 1
+
     # Main UI loop
     def run(self):
         prev_piece = (0,0)
@@ -100,27 +108,16 @@ class BoardUI:
                 time.sleep(0.5)
                 new_piece = self.minimax.get_next_move(prev_piece)
                 can_move, wins = self.board.add_move(new_piece, self.player) if new_piece else None,None
-                if wins:
-                    self.draw_game_win()
-                    time.sleep(2)
-                    self.board.reset()
-
-                if can_move:
-                    self.player = 2 if self.player == 1 else 1
-            # Check user inputs
-            for event in pygame.event.get():
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    if self.player == 1:
+                self.actions_after_player_move(can_move, wins)
+            else:
+                # Check user inputs
+                for event in pygame.event.get():
+                    if event.type == pygame.MOUSEBUTTONDOWN:
                         new_piece = (event.pos[0]//BLOCK_SIZE, event.pos[1]//BLOCK_SIZE)
                         prev_piece = new_piece
                         can_move, wins = self.board.add_move(new_piece, self.player)
-                        if wins:
-                            self.draw_game_win()
-                            time.sleep(2)
-                            self.board.reset()
-                        if can_move and not wins:
-                            self.player = 2 if self.player == 1 else 1
-                if event.type == pygame.QUIT:
-                    sys.exit()
+                        self.actions_after_player_move(can_move, wins)
+                    if event.type == pygame.QUIT:
+                        sys.exit()
             # Refresh the game UI
             self.draw_game()
