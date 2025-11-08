@@ -28,4 +28,4 @@ class Minimax:
         directions = self.get_direction_counts(last_move, PLAYER['USER'])
         all_tuples = [self.__board.get_next_free_coordinates(last_move, PLAYER['USER'], direction[1]) for direction in directions]
         flattened = [x for tup in all_tuples for x in tup if x is not None]
-        return next(iter(flattened))
+        return next(iter(flattened)) if len(flattened) > 0 else None
