@@ -192,3 +192,36 @@ class TestGameBoard(unittest.TestCase):
         self.assertEqual(self.board.get_next_free_coordinates((2,0),1,'diagonal'), (None,None))
         self.assertEqual(self.board.get_next_free_coordinates((2,0),1,'inverse_diagonal'), (None,(1,1)))
         self.assertEqual(self.board.get_next_free_coordinates((2,0),1,'asdf'), (None,None))
+
+    def test_evaluate_move(self):
+        self.board = Board(6,6)
+        play = [
+            [0,0,1,2,0,0],
+            [0,0,1,2,0,0],
+            [0,0,1,2,0,0],
+            [0,0,1,2,0,0],
+            [0,2,1,0,0,0],
+            [0,0,0,0,0,0]
+        ]
+        for i,row in enumerate(play):
+            for y,col in enumerate(row):
+                self.board.add_move((y,i),col)
+
+        self.assertEqual(self.board.evaluate_move((2,5)), -8)
+
+    def test_evaluate_move_condition6(self):
+        self.board = Board(6,6)
+
+        play = [
+            [0,0,0,2,0,0],
+            [0,2,1,2,0,0],
+            [0,1,0,1,0,0],
+            [0,0,1,2,0,0],
+            [0,2,1,0,0,0],
+            [0,0,0,0,0,0]
+        ]
+        for i,row in enumerate(play):
+            for y,col in enumerate(row):
+                self.board.add_move((y,i),col)
+
+        self.assertEqual(self.board.evaluate_move((2,2)), -5)
