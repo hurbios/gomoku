@@ -38,7 +38,7 @@ stateDiagram-v2
         moveCandidateDepth --> moveCandidateDepth2: loop through possible moves.
         moveCandidateDepth2: Create table of possible moves of next layer (AI)
         moveCandidateDepth2 --> moveEval2: There can be multiple more similar layers. Time limits the amount of layers.
-        moveEval2: Evaluate moves statiscally
+        moveEval2: Evaluate moves statically
         moveEval2 --> moveEval1
         moveEval1: Select best move (user)
         moveEval1 --> moveEval

@@ -217,8 +217,8 @@ class TestGameBoard(unittest.TestCase):
             [0,2,1,2,0,0],
             [0,1,0,1,0,0],
             [0,0,1,2,0,0],
-            [0,2,1,0,0,0],
-            [0,0,0,0,0,0]
+            [0,2,0,0,0,0],
+            [0,0,1,0,0,0]
         ]
         for i,row in enumerate(play):
             for y,col in enumerate(row):
