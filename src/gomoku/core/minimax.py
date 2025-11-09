@@ -19,7 +19,7 @@ class Minimax:
         direction_counts.sort(reverse=True)
         return direction_counts
 
-    # temp return only direction and count, fix later
+    # TODO: temp return only direction and count, fix later
     def get_next_move(self, last_move: tuple[int, int]):
         # player1 = self.__board.get_player_pieces(1) # User
         # player2 = self.__board.get_player_pieces(2) # AI

@@ -51,10 +51,10 @@ class Board:
     # returns pair (count, direction)
     def __get_max_in_row_count(self, move: tuple[int, int], player:int):
         return sorted([
-            (self.get_direction_count(move,player,'vertical'), '-'),           # - direction
-            (self.get_direction_count(move,player,'horizontal'), '|'),         # | direction
-            (self.get_direction_count(move,player,'diagonal'), '/'),           # / direction
-            (self.get_direction_count(move,player,'inverse_diagonal'), '\\')   # \ direction
+            (self.get_direction_count(move,player,'vertical'), 'vertical'),           # - direction
+            (self.get_direction_count(move,player,'horizontal'), 'horizontal'),         # | direction
+            (self.get_direction_count(move,player,'diagonal'), 'diagonal'),           # / direction
+            (self.get_direction_count(move,player,'inverse_diagonal'), 'inverse_diagonal')   # \ direction
         ], reverse=True)
 
     def __player_wins(self, move: tuple[int, int], player:int):
@@ -133,6 +133,22 @@ class Board:
     ### Move evaluations #######
     ############################
 
+    def __get_count_for_x_order_direction(self, move:tuple[int, int], player:int):
+        # TODO: improve: if multiple same, get the one with most empty spaces
+        ordered_max_counts_high_to_low = self.__get_max_in_row_count(move, player)
+        count, direction = ordered_max_counts_high_to_low[0]
+        next_coordinates = self.get_next_free_coordinates(move, player, direction)
+        empty_spaces = 1 if next_coordinates[0] is not None else 0
+        empty_spaces += 1 if next_coordinates[1] is not None else 0
+        second_count, second_direction = ordered_max_counts_high_to_low[1]
+        if count >= 3 and second_count >= 3:
+            second_next_coordinates = self.get_next_free_coordinates(move, 1, second_direction)
+            second_empty_spaces = 1 if second_next_coordinates[0] is not None else 0
+            second_empty_spaces += 1 if second_next_coordinates[1] is not None else 0
+        else:
+            second_empty_spaces = 0
+        return count, empty_spaces, second_count, second_empty_spaces
+
     # number - description - ((points))
     # 0.  LOST - other has 5th in row ((-8))
     # 1.  ATTACK - add 5th for the row ((8))
@@ -151,107 +167,61 @@ class Board:
     # 13. BLOCK - block 3rd in a row with one side empty spaces around ((-1))
     # 14. BLOCK - block 2nd in a row with empty spaces around (4) ((0))
     # 15. ATTACK - add 1st in a row with as many empty spaces around as possible ((1))
-    def evaluate_move(self, move:tuple[int, int], player:int):
-        ordered_usr_max_counts_high_to_low = self.__get_max_in_row_count(move, 1)
-        count_usr, direction_usr = ordered_usr_max_counts_high_to_low[0]
+    def evaluate_move(self, move:tuple[int, int]):
+        (
+            count_usr,
+            usr_empty_spaces,
+            second_count_usr,
+            second_usr_empty_spaces
+        ) = self.__get_count_for_x_order_direction(move, 1)
 
-        # 0.  LOST - other has 5th in row ((-8))
-        if count_usr >= 6:
-            return -8
+        (
+            count_ai,
+            ai_empty_spaces,
+            second_count_ai,
+            second_ai_empty_spaces
+        ) = self.__get_count_for_x_order_direction(move, 2)
 
-        ordered_ai_max_counts_high_to_low = self.__get_max_in_row_count(move, 2)
-        count_ai, direction_ai = ordered_ai_max_counts_high_to_low[0]
+        evaluations = (
+            # 0.  LOST - other has 5th in row ((-8))
+            (count_usr >= 6, -8),
+            # 1.  ATTACK - add 5th for the row ((8))
+            (count_ai >= 5, 8),
+            # 2.  BLOCK - block 5th in a row with one sided empty space ((-7))
+            (count_usr >= 5, -7),
+            # 3.  ATTACK - add 4th in a row (two empty space) ((7))
+            (count_ai >= 4 and ai_empty_spaces >= 2, 7),
+            # 3.  ATTACK - add 4th in a row (one empty space) ((6))
+            (count_ai >= 4 and ai_empty_spaces >= 1, 6),
+            # 4.  BLOCK - block 4th in a row with both sides empty space ((-6))
+            (count_usr >= 4 and usr_empty_spaces >= 2, -6),
+            # 5.  ATTACK - add center for dual 3rd in a row with empty spaces around (3)  ((5))
+            (count_ai >= 3 and second_count_ai >= 3 and ai_empty_spaces + second_ai_empty_spaces >= 3, 5),
+            # 6.  BLOCK - block center for dual 3rd in a row with empty spaces around (4) ((-5))
+            (count_usr >= 3 and second_count_usr >= 3 and usr_empty_spaces + second_usr_empty_spaces >= 4, -5),
+            # 7.  ATTACK - add 3rd in a row with empty spaces around ((4))
+            (count_ai >= 3 and ai_empty_spaces >= 2, 4),
+            # 8.  BLOCK - block center for dual 3rd in a row with 3 or less empty spaces around ((-4))
+            (count_usr >= 3 and second_count_usr >= 3 and usr_empty_spaces + second_usr_empty_spaces >= 3, -4),
+            # 9.  ATTACK - add 3rd in a row with one side empty space ((3))
+            (count_ai >= 3 and ai_empty_spaces >= 1, 3),
+            # 10. BLOCK - block 4th in a row with one side empty space ((-3))
+            (count_usr >= 4 and usr_empty_spaces >= 1, -3),
+            # 11. BLOCK - block 3rd in a row with empty spaces around ((-2))
+            (count_usr >= 3 and usr_empty_spaces >= 2, -2),
+            # 12. ATTACK - add 2nd in a row with empty spaces around ((2))
+            (count_ai >= 2 and ai_empty_spaces >= 2, 2),
+            # 13. BLOCK - block 3rd in a row with one side empty spaces around ((-1))
+            (count_usr >= 3 and usr_empty_spaces >= 1, -1),
+            # 14. BLOCK - block 2nd in a row with empty spaces around (4) ((0))
+            (count_usr >= 2 and usr_empty_spaces >= 2, 0),
+            # 15. ATTACK - add 1st in a row with as many empty spaces around as possible ((1))
+            (count_usr >= 1 and usr_empty_spaces >= 2, 1)
+        )
 
-        # 1.  ATTACK - add 5th for the row ((8))
-        if count_ai >= 5:
-            return 8
-
-        # 2.  BLOCK - block 5th in a row with one sided empty space ((-7))
-        if count_usr >= 5:
-            return -7
-
-        next_coordinates_ai = self.get_next_free_coordinates(self, move, 2, direction_ai)
-        ai_empty_spaces = 1 if next_coordinates_ai[0] is not None else 0
-        ai_empty_spaces += 1 if next_coordinates_ai[1] is not None else 0
-
-        # 3.  ATTACK - add 4th in a row (one ((6)) or more ((7)) empty space)
-        if count_ai >= 4:
-            if ai_empty_spaces >= 2:
-                return 7
-            if ai_empty_spaces >= 1:
-                return 6
-
-        next_coordinates_usr = self.get_next_free_coordinates(self, move, 1, direction_usr)
-        usr_empty_spaces = 1 if next_coordinates_usr[0] is not None else 0
-        usr_empty_spaces += 1 if next_coordinates_usr[1] is not None else 0
-
-        # 4.  BLOCK - block 4th in a row with both sides empty space ((-6))
-        if count_usr >= 4:
-            if usr_empty_spaces >= 2:
-                return -6
-
-        second_count_ai, second_direction_ai = ordered_ai_max_counts_high_to_low[1]
-        second_next_coordinates_ai = self.get_next_free_coordinates(self, move, 2, second_direction_ai)
-        second_ai_empty_spaces = 1 if second_next_coordinates_ai[0] is not None else 0
-        second_ai_empty_spaces += 1 if second_next_coordinates_ai[1] is not None else 0
-        
-        # 5.  ATTACK - add center for dual 3rd in a row with empty spaces around (3)  ((5))
-        if count_ai >= 3 and second_count_ai >= 3:
-            if ai_empty_spaces + second_ai_empty_spaces >= 3:
-                return 5
-
-        second_count_usr, second_direction_usr = ordered_usr_max_counts_high_to_low[1]
-        second_next_coordinates_usr = self.get_next_free_coordinates(self, move, 1, second_direction_usr)
-        second_usr_empty_spaces = 1 if second_next_coordinates_usr[0] is not None else 0
-        second_usr_empty_spaces += 1 if second_next_coordinates_usr[1] is not None else 0
-        # 6.  BLOCK - block center for dual 3rd in a row with empty spaces around (4) ((-5))
-        if count_usr >= 3 and second_count_usr >= 3:
-            if usr_empty_spaces + second_usr_empty_spaces >= 4:
-                return -5
-            
-        # 7.  ATTACK - add 3rd in a row with empty spaces around ((4))
-        if count_ai >= 3:
-            if ai_empty_spaces >= 2:
-                return 4
-
-        # 8.  BLOCK - block center for dual 3rd in a row with 3 or less empty spaces around ((-4))
-        if count_usr >= 3 and second_count_usr >= 3:
-            if usr_empty_spaces + second_usr_empty_spaces >= 3:
-                return -4
-
-        # 9.  ATTACK - add 3rd in a row with one side empty space ((3))
-        if count_ai >= 3:
-            if ai_empty_spaces >= 1:
-                return 3
-
-        # 10. BLOCK - block 4th in a row with one side empty space ((-3))
-        if count_usr >= 4:
-            if next_coordinates_usr[0] is not None or next_coordinates_usr[0] is not None:
-                return -3
-
-        # 11. BLOCK - block 3rd in a row with empty spaces around ((-2))
-        if count_usr >= 3:
-            if usr_empty_spaces >= 2:
-                return -2
-
-        # 12. ATTACK - add 2nd in a row with empty spaces around ((2))
-        if count_ai >= 2:
-            if ai_empty_spaces >= 2:
-                return 2
-
-        # 13. BLOCK - block 3rd in a row with one side empty spaces around ((-1))
-        if count_usr >= 3:
-            if usr_empty_spaces >= 1:
-                return -1
-
-        # 14. BLOCK - block 2nd in a row with empty spaces around (4) ((0))
-        if count_usr >= 2:
-            if usr_empty_spaces >= 2:
-                return 0
-
-        # 15. ATTACK - add 1st in a row with as many empty spaces around as possible ((1))
-        if count_usr >= 1:
-            if usr_empty_spaces >= 2:
-                return 1
+        for i,evaluation in enumerate(iter(evaluations)):
+            print(i, evaluation[0], evaluation[1], count_ai, ai_empty_spaces)
+            if evaluation[0]:
+                return evaluation[1]
 
         return 0
