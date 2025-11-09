@@ -149,24 +149,6 @@ class Board:
             second_empty_spaces = 0
         return count, empty_spaces, second_count, second_empty_spaces
 
-    # number - description - ((points))
-    # 0.  LOST - other has 5th in row ((-8))
-    # 1.  ATTACK - add 5th for the row ((8))
-    # 2.  BLOCK - block 5th in a row with one sided empty space ((-7))
-    # 3.  ATTACK - add 4th in a row both sides empty space ((7))
-    # 3.  ATTACK - add 4th in a row (one or more empty space) ((6))
-    # 4.  BLOCK - block 4th in a row with both sides empty space ((-6))
-    # 5.  ATTACK - add center for dual 3rd in a row with empty spaces around (4)  ((5))
-    # 6.  BLOCK - block center for dual 3rd in a row with empty spaces around (4) ((-5))
-    # 7.  ATTACK - add 3rd in a row with empty spaces around ((4))
-    # 8.  BLOCK - block center for dual 3rd in a row with 3 or less empty spaces around ((-4))
-    # 9.  ATTACK - add 3rd in a row with one side empty space ((3))
-    # 10. BLOCK - block 4th in a row with one side empty space ((-3))
-    # 11. BLOCK - block 3rd in a row with empty spaces around ((-2))
-    # 12. ATTACK - add 2nd in a row with empty spaces around ((2))
-    # 13. BLOCK - block 3rd in a row with one side empty spaces around ((-1))
-    # 14. BLOCK - block 2nd in a row with empty spaces around (4) ((0))
-    # 15. ATTACK - add 1st in a row with as many empty spaces around as possible ((1))
     def evaluate_move(self, move:tuple[int, int]):
         (
             count_usr,
