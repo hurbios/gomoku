@@ -48,14 +48,17 @@ class Board:
             case _:
                 return 0
 
+    # returns pair (count, direction)
+    def __get_max_in_row_count(self, move: tuple[int, int], player:int):
+        return sorted([
+            (self.get_direction_count(move,player,'vertical'), '-'),           # - direction
+            (self.get_direction_count(move,player,'horizontal'), '|'),         # | direction
+            (self.get_direction_count(move,player,'diagonal'), '/'),           # / direction
+            (self.get_direction_count(move,player,'inverse_diagonal'), '\\')   # \ direction
+        ], reverse=True)
+
     def __player_wins(self, move: tuple[int, int], player:int):
-        max_in_row = max(
-            self.get_direction_count(move,player,'vertical'),           # - direction
-            self.get_direction_count(move,player,'horizontal'),         # | direction
-            self.get_direction_count(move,player,'diagonal'),           # / direction
-            self.get_direction_count(move,player,'inverse_diagonal')    # \ direction
-        )
-        return max_in_row >=5
+        return self.__get_max_in_row_count(move, player)[0][0] >=5
 
     # Returns tuple: (True if player piece was added, True if player wins)
     def add_move(self, move: tuple[int, int], player:int):
@@ -125,3 +128,130 @@ class Board:
                 return ((self.__get_next_coordinate(position,player,(-1,-1)), self.__get_next_coordinate(position,player,(1,1))))
             case _:
                 return None,None
+
+    ############################
+    ### Move evaluations #######
+    ############################
+
+    # number - description - ((points))
+    # 0.  LOST - other has 5th in row ((-8))
+    # 1.  ATTACK - add 5th for the row ((8))
+    # 2.  BLOCK - block 5th in a row with one sided empty space ((-7))
+    # 3.  ATTACK - add 4th in a row both sides empty space ((7))
+    # 3.  ATTACK - add 4th in a row (one or more empty space) ((6))
+    # 4.  BLOCK - block 4th in a row with both sides empty space ((-6))
+    # 5.  ATTACK - add center for dual 3rd in a row with empty spaces around (4)  ((5))
+    # 6.  BLOCK - block center for dual 3rd in a row with empty spaces around (4) ((-5))
+    # 7.  ATTACK - add 3rd in a row with empty spaces around ((4))
+    # 8.  BLOCK - block center for dual 3rd in a row with 3 or less empty spaces around ((-4))
+    # 9.  ATTACK - add 3rd in a row with one side empty space ((3))
+    # 10. BLOCK - block 4th in a row with one side empty space ((-3))
+    # 11. BLOCK - block 3rd in a row with empty spaces around ((-2))
+    # 12. ATTACK - add 2nd in a row with empty spaces around ((2))
+    # 13. BLOCK - block 3rd in a row with one side empty spaces around ((-1))
+    # 14. BLOCK - block 2nd in a row with empty spaces around (4) ((0))
+    # 15. ATTACK - add 1st in a row with as many empty spaces around as possible ((1))
+    def evaluate_move(self, move:tuple[int, int], player:int):
+        ordered_usr_max_counts_high_to_low = self.__get_max_in_row_count(move, 1)
+        count_usr, direction_usr = ordered_usr_max_counts_high_to_low[0]
+
+        # 0.  LOST - other has 5th in row ((-8))
+        if count_usr >= 6:
+            return -8
+
+        ordered_ai_max_counts_high_to_low = self.__get_max_in_row_count(move, 2)
+        count_ai, direction_ai = ordered_ai_max_counts_high_to_low[0]
+
+        # 1.  ATTACK - add 5th for the row ((8))
+        if count_ai >= 5:
+            return 8
+
+        # 2.  BLOCK - block 5th in a row with one sided empty space ((-7))
+        if count_usr >= 5:
+            return -7
+
+        next_coordinates_ai = self.get_next_free_coordinates(self, move, 2, direction_ai)
+        ai_empty_spaces = 1 if next_coordinates_ai[0] is not None else 0
+        ai_empty_spaces += 1 if next_coordinates_ai[1] is not None else 0
+
+        # 3.  ATTACK - add 4th in a row (one ((6)) or more ((7)) empty space)
+        if count_ai >= 4:
+            if ai_empty_spaces >= 2:
+                return 7
+            if ai_empty_spaces >= 1:
+                return 6
+
+        next_coordinates_usr = self.get_next_free_coordinates(self, move, 1, direction_usr)
+        usr_empty_spaces = 1 if next_coordinates_usr[0] is not None else 0
+        usr_empty_spaces += 1 if next_coordinates_usr[1] is not None else 0
+
+        # 4.  BLOCK - block 4th in a row with both sides empty space ((-6))
+        if count_usr >= 4:
+            if usr_empty_spaces >= 2:
+                return -6
+
+        second_count_ai, second_direction_ai = ordered_ai_max_counts_high_to_low[1]
+        second_next_coordinates_ai = self.get_next_free_coordinates(self, move, 2, second_direction_ai)
+        second_ai_empty_spaces = 1 if second_next_coordinates_ai[0] is not None else 0
+        second_ai_empty_spaces += 1 if second_next_coordinates_ai[1] is not None else 0
+        
+        # 5.  ATTACK - add center for dual 3rd in a row with empty spaces around (3)  ((5))
+        if count_ai >= 3 and second_count_ai >= 3:
+            if ai_empty_spaces + second_ai_empty_spaces >= 3:
+                return 5
+
+        second_count_usr, second_direction_usr = ordered_usr_max_counts_high_to_low[1]
+        second_next_coordinates_usr = self.get_next_free_coordinates(self, move, 1, second_direction_usr)
+        second_usr_empty_spaces = 1 if second_next_coordinates_usr[0] is not None else 0
+        second_usr_empty_spaces += 1 if second_next_coordinates_usr[1] is not None else 0
+        # 6.  BLOCK - block center for dual 3rd in a row with empty spaces around (4) ((-5))
+        if count_usr >= 3 and second_count_usr >= 3:
+            if usr_empty_spaces + second_usr_empty_spaces >= 4:
+                return -5
+            
+        # 7.  ATTACK - add 3rd in a row with empty spaces around ((4))
+        if count_ai >= 3:
+            if ai_empty_spaces >= 2:
+                return 4
+
+        # 8.  BLOCK - block center for dual 3rd in a row with 3 or less empty spaces around ((-4))
+        if count_usr >= 3 and second_count_usr >= 3:
+            if usr_empty_spaces + second_usr_empty_spaces >= 3:
+                return -4
+
+        # 9.  ATTACK - add 3rd in a row with one side empty space ((3))
+        if count_ai >= 3:
+            if ai_empty_spaces >= 1:
+                return 3
+
+        # 10. BLOCK - block 4th in a row with one side empty space ((-3))
+        if count_usr >= 4:
+            if next_coordinates_usr[0] is not None or next_coordinates_usr[0] is not None:
+                return -3
+
+        # 11. BLOCK - block 3rd in a row with empty spaces around ((-2))
+        if count_usr >= 3:
+            if usr_empty_spaces >= 2:
+                return -2
+
+        # 12. ATTACK - add 2nd in a row with empty spaces around ((2))
+        if count_ai >= 2:
+            if ai_empty_spaces >= 2:
+                return 2
+
+        # 13. BLOCK - block 3rd in a row with one side empty spaces around ((-1))
+        if count_usr >= 3:
+            if usr_empty_spaces >= 1:
+                return -1
+
+        # 14. BLOCK - block 2nd in a row with empty spaces around (4) ((0))
+        if count_usr >= 2:
+            if usr_empty_spaces >= 2:
+                return 0
+
+        # 15. ATTACK - add 1st in a row with as many empty spaces around as possible ((1))
+        if count_usr >= 1:
+            if usr_empty_spaces >= 2:
+                return 1
+
+        return 0
