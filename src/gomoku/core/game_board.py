@@ -138,13 +138,11 @@ class Board:
         ordered_max_counts_high_to_low = self.__get_max_in_row_count(move, player)
         count, direction = ordered_max_counts_high_to_low[0]
         next_coordinates = self.get_next_free_coordinates(move, player, direction)
-        empty_spaces = 1 if next_coordinates[0] is not None else 0
-        empty_spaces += 1 if next_coordinates[1] is not None else 0
+        empty_spaces = sum(list(1 for n in next_coordinates if n is not None))
         second_count, second_direction = ordered_max_counts_high_to_low[1]
         if count >= 3 and second_count >= 3:
             second_next_coordinates = self.get_next_free_coordinates(move, 1, second_direction)
-            second_empty_spaces = 1 if second_next_coordinates[0] is not None else 0
-            second_empty_spaces += 1 if second_next_coordinates[1] is not None else 0
+            second_empty_spaces = sum(list(1 for n in second_next_coordinates if n is not None))
         else:
             second_empty_spaces = 0
         return count, empty_spaces, second_count, second_empty_spaces
