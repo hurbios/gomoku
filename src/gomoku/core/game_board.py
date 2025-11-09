@@ -219,8 +219,10 @@ class Board:
             (count_usr >= 1 and usr_empty_spaces >= 2, 1)
         )
 
-        for i,evaluation in enumerate(iter(evaluations)):
-            print(i, evaluation[0], evaluation[1], count_ai, ai_empty_spaces)
+        # TODO: remove obsolete logging
+        # for i,evaluation in enumerate(iter(evaluations)):
+        for evaluation in iter(evaluations):
+            # print(i, evaluation[0], evaluation[1], count_ai, ai_empty_spaces)
             if evaluation[0]:
                 return evaluation[1]
 
