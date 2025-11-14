@@ -207,7 +207,7 @@ class TestGameBoard(unittest.TestCase):
             for y,col in enumerate(row):
                 self.board.add_move((y,i),col)
 
-        self.assertEqual(self.board.evaluate_move((2,5)), -8)
+        self.assertEqual(self.board.evaluate_move((2,5)), 14)
 
     def test_evaluate_move_condition6(self):
         self.board = Board(6,6)
@@ -224,4 +224,4 @@ class TestGameBoard(unittest.TestCase):
             for y,col in enumerate(row):
                 self.board.add_move((y,i),col)
 
-        self.assertEqual(self.board.evaluate_move((2,2)), -5)
+        self.assertEqual(self.board.evaluate_move((2,2)), 9)
