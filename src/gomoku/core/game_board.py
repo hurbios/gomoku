@@ -135,7 +135,7 @@ class Board:
                 return None,None
 
     def get_surrounding_free_coordinates(self, position:tuple[int, int], depth:int=1):
-        offset_number_list = [num for num in range(-depth, depth+1)]
+        offset_number_list = list(range(-depth, depth+1))
         move_offsets = list(product(offset_number_list, repeat=2))
         move_offsets.remove((0,0))
         free_coordinates = []
