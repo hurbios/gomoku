@@ -20,7 +20,7 @@ class Minimax:
         return direction_counts
 
     # TODO: temp return only direction and count, fix later
-    def get_next_move(self, last_move: tuple[int, int]):
+    def _get_next_move(self, last_move: tuple[int, int]):
         # player1 = self.__board.get_player_pieces(1) # User
         # player2 = self.__board.get_player_pieces(2) # AI
 
@@ -29,3 +29,15 @@ class Minimax:
         all_tuples = [self.__board.get_next_free_coordinates(last_move, PLAYER['USER'], direction[1]) for direction in directions]
         flattened = [x for tup in all_tuples for x in tup if x is not None]
         return next(iter(flattened)) if len(flattened) > 0 else None
+
+    def get_next_move(self, last_move: tuple[int, int]):
+        high_score = -100
+        move = last_move
+        # print(self.__board.get_surrounding_free_coordinates(last_move))
+        for coordinates in self.__board.get_surrounding_free_coordinates(last_move,6):
+            move_score = self.__board.evaluate_move(coordinates)
+            if move_score > high_score:
+                high_score = move_score
+                move = coordinates
+        # print(move)
+        return move

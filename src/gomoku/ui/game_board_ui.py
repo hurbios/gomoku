@@ -107,7 +107,7 @@ class BoardUI:
             if self.player == 2:
                 time.sleep(0.5)
                 new_piece = self.minimax.get_next_move(prev_piece)
-                can_move, wins = self.board.add_move(new_piece, self.player) if new_piece else None,None
+                can_move, wins = self.board.add_move(new_piece, self.player) if new_piece else (None, None)
                 self.actions_after_player_move(can_move, wins)
             else:
                 # Check user inputs

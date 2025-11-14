@@ -1,3 +1,5 @@
+from itertools import product
+
 class Board:
     def __init__(self, width: int, height: int):
         self.__width = width
@@ -60,19 +62,22 @@ class Board:
     def __player_wins(self, move: tuple[int, int], player:int):
         return self.__get_max_in_row_count(move, player)[0][0] >=5
 
+    def __is_outside_of_game_area(self, move: tuple[int, int]):
+        return any(iter([
+                (self.__width <= move[0]),
+                (move[0] < 0),
+                (self.__width <= move[1]),
+                (move[1] < 0),
+                (self.__height <= move[0]),
+                (move[0] < 0),
+                (self.__height <= move[1]),
+                (move[1] < 0)
+              ]))
+
     # Returns tuple: (True if player piece was added, True if player wins)
     def add_move(self, move: tuple[int, int], player:int):
         # Check that the move is within the game area boundaries
-        if any(iter([
-                (self.__width < move[0]),
-                (move[0] < 0),
-                (self.__width < move[1]),
-                (move[1] < 0),
-                (self.__height < move[0]),
-                (move[0] < 0),
-                (self.__height < move[1]),
-                (move[1] < 0)
-              ])):
+        if self.__is_outside_of_game_area(move):
             return False, False
 
         # Check that no piece exists yet in the move coordinates
@@ -129,6 +134,20 @@ class Board:
             case _:
                 return None,None
 
+    def get_surrounding_free_coordinates(self, position:tuple[int, int], depth:int=1):
+        offset_number_list = [num for num in range(-depth, depth+1)]
+        move_offsets = list(product(offset_number_list, repeat=2))
+        move_offsets.remove((0,0))
+        free_coordinates = []
+        for offset in move_offsets:
+            new_position = (position[0]+offset[0], position[1]+offset[1])
+            # print(new_position, self.__is_outside_of_game_area(new_position))
+            if not self.__is_outside_of_game_area(new_position):
+                if not self.__moves[new_position[0]][new_position[1]]:
+                    free_coordinates.append(new_position)
+        return free_coordinates
+
+
     ############################
     ### Move evaluations #######
     ############################
@@ -163,40 +182,40 @@ class Board:
         ) = self.__get_count_for_x_order_direction(move, 2)
 
         evaluations = (
-            # 0.  LOST - other has 5th in row ((-8))
-            (count_usr >= 6, -8),
+            # # 0.  LOST - other has 5th in row ((-8))
+            # (count_usr >= 6, 16),
             # 1.  ATTACK - add 5th for the row ((8))
-            (count_ai >= 5, 8),
+            (count_ai >= 5, 15),
             # 2.  BLOCK - block 5th in a row with one sided empty space ((-7))
-            (count_usr >= 5, -7),
+            (count_usr >= 5, 14),
             # 3.  ATTACK - add 4th in a row (two empty space) ((7))
-            (count_ai >= 4 and ai_empty_spaces >= 2, 7),
+            (count_ai >= 4 and ai_empty_spaces >= 2, 13),
             # 3.  ATTACK - add 4th in a row (one empty space) ((6))
-            (count_ai >= 4 and ai_empty_spaces >= 1, 6),
+            (count_ai >= 4 and ai_empty_spaces >= 1, 12),
             # 4.  BLOCK - block 4th in a row with both sides empty space ((-6))
-            (count_usr >= 4 and usr_empty_spaces >= 2, -6),
+            (count_usr >= 4 and usr_empty_spaces >= 2, 11),
             # 5.  ATTACK - add center for dual 3rd in a row with empty spaces around (3)  ((5))
-            (count_ai >= 3 and second_count_ai >= 3 and ai_empty_spaces + second_ai_empty_spaces >= 3, 5),
+            (count_ai >= 3 and second_count_ai >= 3 and ai_empty_spaces + second_ai_empty_spaces >= 3, 10),
             # 6.  BLOCK - block center for dual 3rd in a row with empty spaces around (4) ((-5))
-            (count_usr >= 3 and second_count_usr >= 3 and usr_empty_spaces + second_usr_empty_spaces >= 4, -5),
+            (count_usr >= 3 and second_count_usr >= 3 and usr_empty_spaces + second_usr_empty_spaces >= 4, 9),
             # 7.  ATTACK - add 3rd in a row with empty spaces around ((4))
-            (count_ai >= 3 and ai_empty_spaces >= 2, 4),
+            (count_ai >= 3 and ai_empty_spaces >= 2, 8),
             # 8.  BLOCK - block center for dual 3rd in a row with 3 or less empty spaces around ((-4))
-            (count_usr >= 3 and second_count_usr >= 3 and usr_empty_spaces + second_usr_empty_spaces >= 3, -4),
+            (count_usr >= 3 and second_count_usr >= 3 and usr_empty_spaces + second_usr_empty_spaces >= 3, 7),
             # 9.  ATTACK - add 3rd in a row with one side empty space ((3))
-            (count_ai >= 3 and ai_empty_spaces >= 1, 3),
+            (count_ai >= 3 and ai_empty_spaces >= 1, 6),
             # 10. BLOCK - block 4th in a row with one side empty space ((-3))
-            (count_usr >= 4 and usr_empty_spaces >= 1, -3),
+            (count_usr >= 4 and usr_empty_spaces >= 1, 5),
             # 11. BLOCK - block 3rd in a row with empty spaces around ((-2))
-            (count_usr >= 3 and usr_empty_spaces >= 2, -2),
+            (count_usr >= 3 and usr_empty_spaces >= 2, 4),
             # 12. ATTACK - add 2nd in a row with empty spaces around ((2))
-            (count_ai >= 2 and ai_empty_spaces >= 2, 2),
+            (count_ai >= 2 and ai_empty_spaces >= 2,3),
             # 13. BLOCK - block 3rd in a row with one side empty spaces around ((-1))
-            (count_usr >= 3 and usr_empty_spaces >= 1, -1),
+            (count_usr >= 3 and usr_empty_spaces >= 1, 2),
             # 14. BLOCK - block 2nd in a row with empty spaces around (4) ((0))
-            (count_usr >= 2 and usr_empty_spaces >= 2, 0),
+            (count_usr >= 2 and usr_empty_spaces >= 2, 1),
             # 15. ATTACK - add 1st in a row with as many empty spaces around as possible ((1))
-            (count_usr >= 1 and usr_empty_spaces >= 2, 1)
+            (count_usr >= 1 and usr_empty_spaces >= 2, 0)
         )
 
         # TODO: remove obsolete logging
