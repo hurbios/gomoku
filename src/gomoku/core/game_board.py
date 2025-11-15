@@ -96,6 +96,20 @@ class Board:
 
         return True, self.__player_wins(move, player)
 
+    def add_temp_move(self, move: tuple[int, int], player:int):
+        self.__moves[move[0]][move[1]] = player
+        if player == 1:
+            self.__player1_pieces.append(move)
+        else:
+            self.__player2_pieces.append(move)
+    
+    def remove_temp_move(self, move: tuple[int, int], player:int):
+        self.__moves[move[0]][move[1]] = 0
+        if player == 1:
+            self.__player1_pieces.remove(move)
+        else:
+            self.__player2_pieces.remove(move)
+
     def get_player_pieces(self, player):
         return self.__player1_pieces if player == 1 else self.__player2_pieces
 
@@ -183,40 +197,54 @@ class Board:
 
         evaluations = (
             # # 0.  LOST - other has 5th in row ((-8))
-            # (count_usr >= 6, 16),
+            # (count_usr >= 6, -8),
             # 1.  ATTACK - add 5th for the row ((8))
-            (count_ai >= 5, 15),
+            (count_ai >= 5, 8),
             # 2.  BLOCK - block 5th in a row with one sided empty space ((-7))
-            (count_usr >= 5, 14),
+            (count_usr >= 5, -8),
             # 3.  ATTACK - add 4th in a row (two empty space) ((7))
-            (count_ai >= 4 and ai_empty_spaces >= 2, 13),
+            (count_ai >= 4 and ai_empty_spaces >= 2, 7),
             # 3.  ATTACK - add 4th in a row (one empty space) ((6))
-            (count_ai >= 4 and ai_empty_spaces >= 1, 12),
-            # 4.  BLOCK - block 4th in a row with both sides empty space ((-6))
-            (count_usr >= 4 and usr_empty_spaces >= 2, 11),
-            # 5.  ATTACK - add center for dual 3rd in a row with empty spaces around (3)  ((5))
-            (count_ai >= 3 and second_count_ai >= 3 and ai_empty_spaces + second_ai_empty_spaces >= 3, 10),
-            # 6.  BLOCK - block center for dual 3rd in a row with empty spaces around (4) ((-5))
-            (count_usr >= 3 and second_count_usr >= 3 and usr_empty_spaces + second_usr_empty_spaces >= 4, 9),
-            # 7.  ATTACK - add 3rd in a row with empty spaces around ((4))
-            (count_ai >= 3 and ai_empty_spaces >= 2, 8),
-            # 8.  BLOCK - block center for dual 3rd in a row with 3 or less empty spaces around ((-4))
-            (count_usr >= 3 and second_count_usr >= 3 and usr_empty_spaces + second_usr_empty_spaces >= 3, 7),
-            # 9.  ATTACK - add 3rd in a row with one side empty space ((3))
-            (count_ai >= 3 and ai_empty_spaces >= 1, 6),
-            # 10. BLOCK - block 4th in a row with one side empty space ((-3))
-            (count_usr >= 4 and usr_empty_spaces >= 1, 5),
-            # 11. BLOCK - block 3rd in a row with empty spaces around ((-2))
-            (count_usr >= 3 and usr_empty_spaces >= 2, 4),
-            # 12. ATTACK - add 2nd in a row with empty spaces around ((2))
-            (count_ai >= 2 and ai_empty_spaces >= 2,3),
-            # 13. BLOCK - block 3rd in a row with one side empty spaces around ((-1))
-            (count_usr >= 3 and usr_empty_spaces >= 1, 2),
-            # 14. BLOCK - block 2nd in a row with empty spaces around (4) ((0))
-            (count_usr >= 2 and usr_empty_spaces >= 2, 1),
-            # 15. ATTACK - add 1st in a row with as many empty spaces around as possible ((1))
-            (count_usr >= 1 and usr_empty_spaces >= 2, 0)
+            (count_ai >= 4 and ai_empty_spaces >= 1, 6),
+            (count_ai >= 1, 1),
+            (count_usr >= 1, -1),
         )
+        # evaluations = (
+        #     # # 0.  LOST - other has 5th in row ((-8))
+        #     # (count_usr >= 6, -8),
+        #     # 1.  ATTACK - add 5th for the row ((8))
+        #     (count_ai >= 5, 8),
+        #     # 2.  BLOCK - block 5th in a row with one sided empty space ((-7))
+        #     (count_usr >= 5, -7),
+        #     # 3.  ATTACK - add 4th in a row (two empty space) ((7))
+        #     (count_ai >= 4 and ai_empty_spaces >= 2, 7),
+        #     # 3.  ATTACK - add 4th in a row (one empty space) ((6))
+        #     (count_ai >= 4 and ai_empty_spaces >= 1, 6),
+        #     # 4.  BLOCK - block 4th in a row with both sides empty space ((-6))
+        #     (count_usr >= 4 and usr_empty_spaces >= 2, -6),
+        #     # 5.  ATTACK - add center for dual 3rd in a row with empty spaces around (3)  ((5))
+        #     (count_ai >= 3 and second_count_ai >= 3 and ai_empty_spaces + second_ai_empty_spaces >= 3, 5),
+        #     # 6.  BLOCK - block center for dual 3rd in a row with empty spaces around (4) ((-5))
+        #     (count_usr >= 3 and second_count_usr >= 3 and usr_empty_spaces + second_usr_empty_spaces >= 4, -5),
+        #     # 7.  ATTACK - add 3rd in a row with empty spaces around ((4))
+        #     (count_ai >= 3 and ai_empty_spaces >= 2, 4),
+        #     # 8.  BLOCK - block center for dual 3rd in a row with 3 or less empty spaces around ((-4))
+        #     (count_usr >= 3 and second_count_usr >= 3 and usr_empty_spaces + second_usr_empty_spaces >= 3, -4),
+        #     # 9.  ATTACK - add 3rd in a row with one side empty space ((3))
+        #     (count_ai >= 3 and ai_empty_spaces >= 1, 3),
+        #     # 10. BLOCK - block 4th in a row with one side empty space ((-3))
+        #     (count_usr >= 4 and usr_empty_spaces >= 1, -3),
+        #     # 11. BLOCK - block 3rd in a row with empty spaces around ((-2))
+        #     (count_usr >= 3 and usr_empty_spaces >= 2, -2),
+        #     # 12. ATTACK - add 2nd in a row with empty spaces around ((2))
+        #     (count_ai >= 2 and ai_empty_spaces >= 2,2),
+        #     # 13. BLOCK - block 3rd in a row with one side empty spaces around ((-1))
+        #     (count_usr >= 3 and usr_empty_spaces >= 1, -1),
+        #     # 14. BLOCK - block 2nd in a row with empty spaces around (4) ((0))
+        #     (count_usr >= 2 and usr_empty_spaces >= 2, 0),
+        #     # 15. ATTACK - add 1st in a row with as many empty spaces around as possible ((1))
+        #     (count_usr >= 1 and usr_empty_spaces >= 2, 1)
+        # )
 
         # TODO: remove obsolete logging
         # for i,evaluation in enumerate(iter(evaluations)):
