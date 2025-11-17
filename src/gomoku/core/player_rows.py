@@ -1,25 +1,8 @@
-DIRECTIONS = {
-    'vertical': { # -
-        'high': (1,0),
-        'low': (-1,0)
-    },
-    'horizontal': { # |
-        'high': (0,1),
-        'low': (0,-1),
-    },
-    'diagonal': { # /
-        'high': (1,1),
-        'low': (-1,-1)
-    },
-    'inverse_diagonal': { # \
-        'high': (1,-1),
-        'low': (-1,1),
-    },
-}
+from gomoku.core.directions import DIRECTIONS
 
 class Row:
     def __init__(self, moves):
-        self._moves = moves
+        self._moves = moves #TODO: performancew improve to set
         self._direction = None
         self._ends = None
 

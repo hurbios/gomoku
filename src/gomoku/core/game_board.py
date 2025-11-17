@@ -1,28 +1,11 @@
 from itertools import product
 from functools import reduce
 from gomoku.core.player_rows import Row
+from gomoku.core.directions import DIRECTIONS
 
-DIRECTIONS = {
-    'vertical': { # -
-        'high': (1,0),
-        'low': (-1,0)
-    },
-    'horizontal': { # |
-        'high': (0,1),
-        'low': (0,-1),
-    },
-    'diagonal': { # /
-        'high': (1,1),
-        'low': (-1,-1)
-    },
-    'inverse_diagonal': { # \
-        'high': (1,-1),
-        'low': (-1,1),
-    },
-}
 
 class Board:
-    def __init__(self, width: int, height: int):
+    def __init__(self, width:int, height:int):
         self.__width = width
         self.__height = height
         self.__moves = [[0 for _ in range(height)] for _ in range(width)]
@@ -32,28 +15,15 @@ class Board:
     def size(self):
         return len(self.__moves), len(self.__moves[0])
             
-    def __is_outside_of_game_area(self, move: tuple[int, int]):
+    def __is_outside_of_game_area(self, move:tuple[int, int]):
         return any(iter([
                 (self.__width <= move[0]),
                 (move[0] < 0),
-                (self.__width <= move[1]),
-                (move[1] < 0),
-                (self.__height <= move[0]),
-                (move[0] < 0),
                 (self.__height <= move[1]),
-                (move[1] < 0)
+                (move[1] < 0),
               ]))
 
-    def __get_close_rows(self, move, player):
-        player_close_rows = []
-        player_rows = self.__player1_rows if player == 1 else self.__player2_rows
-        for row in player_rows:
-            row_relation = row.row_relation(move)
-            if row_relation:
-                player_close_rows.append((row_relation, row))
-        return player_close_rows
-
-    def __get_rows_containing_move(self, move, player):
+    def __get_rows_containing_move(self, move:tuple[int, int], player:int):
         rows_containing_move = []
         player_rows = self.__player1_rows if player == 1 else self.__player2_rows
         for row in player_rows:
@@ -61,15 +31,29 @@ class Board:
                 rows_containing_move.append(row)
         return rows_containing_move
 
-    def add_building_move_to_rows(self, move, player):
+    def __get_close_rows(self, move:tuple[int, int], player:int):
+        def surrounding_moves(move:tuple[int,int]):
+            for offset in DIRECTIONS.values():
+                yield (move[0]-offset['low'][0], move[1]-offset['low'][1])
+                yield (move[0]-offset['high'][0], move[1]-offset['high'][1])
+        
+        player_close_rows = []
+        for surrounding_move in surrounding_moves(move):
+            player_close_rows += self.__get_rows_containing_move(surrounding_move, player)
+
+        return player_close_rows
+
+    def __add_building_move_to_rows(self, move:tuple[int, int], player:int):
         player_rows = self.__get_close_rows(move, player)
         rows_added = []
 
         if len(player_rows) > 0:
             for row in player_rows:
-                if row[0] == 'builds':
-                    row[1].add(move)
-                    rows_added.append(row[1])
+                if row.row_relation(move) == 'builds':
+                    row.add(move)
+                    rows_added.append(row)
+        
+        #TODO: create new row for touching but not building rows 
 
         if len(rows_added) <= 0:
             new_row = Row([move])
@@ -77,11 +61,12 @@ class Board:
                 self.__player1_rows.append(new_row)
             else:
                 self.__player2_rows.append(new_row)
+            rows_added.append(new_row)
 
         return rows_added
 
     # Returns tuple: (True if player piece was added, True if player wins)
-    def add_move(self, move: tuple[int, int], player:int)->tuple[bool, bool]:
+    def add_move(self, move:tuple[int, int], player:int)->tuple[bool, bool]:
         # Check that the move is within the game area boundaries
         if self.__is_outside_of_game_area(move):
             return False, False
@@ -98,7 +83,7 @@ class Board:
 
         # TODO: handle joining rows if needed
         
-        added_rows = self.add_building_move_to_rows(move, player)
+        added_rows = self.__add_building_move_to_rows(move, player)
         # print(added_rows)
         for row in added_rows:
             if len(row) >= 5:
@@ -106,16 +91,16 @@ class Board:
 
         return True, False
 
-    def remove_move_from_row(self, move, player):
+    def __remove_move_from_rows(self, move:tuple[int, int], player:int):
         rows = self.__get_rows_containing_move(move, player)
         for row in rows:
             row.remove(move)
 
-    def remove_move(self, move: tuple[int, int], player:int):
+    def remove_move(self, move:tuple[int, int], player:int):
         self.__moves[move[0]][move[1]] = 0
-        self.remove_move_from_row(move, player)
+        self.__remove_move_from_rows(move, player)
 
-    def get_player_pieces(self, player):
+    def get_player_pieces(self, player:int):
         moves = []
         player_rows = self.__player1_rows if player == 1 else self.__player2_rows
         for row in player_rows:
@@ -127,46 +112,20 @@ class Board:
         self.__player1_rows = []
         self.__player2_rows = []
 
-    # returns 2 coordinates. Bot sides of the line if empty space exists
-    def __get_next_coordinate(self, position:tuple[int, int], player:int, direction:tuple[int, int]):
-        # check map boundaries
-        if any(iter([(self.__width <= (position[0]+direction[0])),
-            ((position[0]+direction[0]) < 0),
-            self.__height <= (position[1]+direction[1]),
-            ((position[1]+direction[1]) < 0)])):
-            return None
-        # check if current position is the players piece
-        if self.__moves[position[0]+direction[0]][position[1]+direction[1]] is not player:
-            # return position only if empty space
-            if not self.__moves[position[0]+direction[0]][position[1]+direction[1]]:
-                return (position[0]+direction[0],position[1]+direction[1])
-            return None
-        # recursion
-        return self.__get_next_coordinate((position[0]+direction[0], position[1]+direction[1]),player,direction)
-
-    def get_next_free_coordinates(self, position:tuple[int, int], player:int, direction:str):
-        match direction:
-            case 'vertical':
-                return ((self.__get_next_coordinate(position,player,(1,0)), self.__get_next_coordinate(position,player,(-1,0))))
-            case 'horizontal':
-                return ((self.__get_next_coordinate(position,player,(0,1)), self.__get_next_coordinate(position,player,(0,-1))))
-            case 'inverse_diagonal':
-                return ((self.__get_next_coordinate(position,player,(1,-1)), self.__get_next_coordinate(position,player,(-1,1))))
-            case 'diagonal':
-                return ((self.__get_next_coordinate(position,player,(-1,-1)), self.__get_next_coordinate(position,player,(1,1))))
-            case _:
-                return None,None
-
     def get_surrounding_free_coordinates(self, position:tuple[int, int], depth:int=1):
-        offset_number_list = list(range(-depth, depth+1))
-        move_offsets = list(product(offset_number_list, repeat=2))
-        move_offsets.remove((0,0))
+        def surrounding_moves():
+            offset_number_list = list(range(-depth, depth+1))
+            move_offsets = list(product(offset_number_list, repeat=2))
+            move_offsets.remove((0,0))
+            for offset in move_offsets:
+                yield (position[0]+offset[0], position[1]+offset[1])
+
         free_coordinates = []
-        for offset in move_offsets:
-            new_position = (position[0]+offset[0], position[1]+offset[1])
-            if not self.__is_outside_of_game_area(new_position):
-                if not self.__moves[new_position[0]][new_position[1]]:
-                    free_coordinates.append(new_position)
+        for surrounding_move in surrounding_moves():
+            if not self.__is_outside_of_game_area(surrounding_move):
+                if not self.__moves[surrounding_move[0]][surrounding_move[1]]:
+                    free_coordinates.append(surrounding_move)
+
         return free_coordinates
 
 
