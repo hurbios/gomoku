@@ -225,3 +225,21 @@ class TestGameBoard(unittest.TestCase):
                 self.board.add_move((y,i),col)
 
         self.assertEqual(self.board.evaluate_move((2,2)), 9)
+    
+    def test_get_player_move_result(self):
+        self.board = Board(6,6)
+
+        play = [
+            [0,0,1,2,0,0],
+            [0,0,1,2,0,0],
+            [0,0,1,2,0,0],
+            [0,0,1,2,0,0],
+            [0,2,2,1,0,0],
+            [0,0,0,0,0,0]
+        ]
+        for i,row in enumerate(play):
+            for y,col in enumerate(row):
+                self.board.add_move((y,i),col)
+
+        self.assertEqual(self.board.get_player_move_result((2,4),2), (2,1,0,0))
+        self.assertEqual(self.board.get_player_move_result((2,4),1), (4,0,1,1))
