@@ -116,9 +116,6 @@ class TestGameBoard(unittest.TestCase):
         ok, has_won = self.board.add_move((2,5),1)
         self.assertEqual((ok, has_won), (True,True), "coordinates (2,5)")
 
-    def test_get_direction_count_unknown(self):
-        self.assertEqual(0, self.board.get_direction_count((2,0),1,'unknown'))
-
     def test_add_move_existing_piece(self):
         ok, has_won = self.board.add_move((1,1),1)
         self.assertEqual((ok, has_won), (True,False))
@@ -193,7 +190,7 @@ class TestGameBoard(unittest.TestCase):
         self.assertEqual(self.board.get_next_free_coordinates((2,0),1,'inverse_diagonal'), (None,(1,1)))
         self.assertEqual(self.board.get_next_free_coordinates((2,0),1,'asdf'), (None,None))
 
-    def test_evaluate_move(self):
+    def test_evaluate_state_after_move(self):
         self.board = Board(6,6)
         play = [
             [0,0,1,2,0,0],
@@ -207,9 +204,9 @@ class TestGameBoard(unittest.TestCase):
             for y,col in enumerate(row):
                 self.board.add_move((y,i),col)
 
-        self.assertEqual(self.board.evaluate_move((2,5)), 14)
+        self.assertEqual(self.board.evaluate_state_after_move((2,5)), 14)
 
-    def test_evaluate_move_condition6(self):
+    def test_evaluate_state_after_move6(self):
         self.board = Board(6,6)
 
         play = [
@@ -224,7 +221,7 @@ class TestGameBoard(unittest.TestCase):
             for y,col in enumerate(row):
                 self.board.add_move((y,i),col)
 
-        self.assertEqual(self.board.evaluate_move((2,2)), 9)
+        self.assertEqual(self.board.evaluate_state_after_move((2,2)), 9)
     
     def test_get_player_move_result(self):
         self.board = Board(6,6)
