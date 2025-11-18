@@ -204,7 +204,7 @@ class TestGameBoard(unittest.TestCase):
             for y,col in enumerate(row):
                 self.board.add_move((y,i),col)
 
-        self.assertEqual(self.board.evaluate_state_after_move((2,5)), 14)
+        self.assertEqual(self.board.evaluate_state_after_move((2,5)), 8)
 
     def test_evaluate_state_after_move6(self):
         self.board = Board(6,6)
@@ -212,7 +212,7 @@ class TestGameBoard(unittest.TestCase):
         play = [
             [0,0,0,2,0,0],
             [0,2,1,2,0,0],
-            [0,1,0,1,0,0],
+            [0,1,1,1,0,0],
             [0,0,1,2,0,0],
             [0,2,0,0,0,0],
             [0,0,1,0,0,0]

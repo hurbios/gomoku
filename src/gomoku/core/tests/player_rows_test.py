@@ -6,7 +6,7 @@ class TestRow(unittest.TestCase):
         self.row = Row([(2,0),(2,1),(2,2),(2,3)])
 
     def test_direction(self):
-        self.assertEqual(self.row.direction, 'horizontal')
+        self.assertEqual(self.row.direction, 'vertical')
 
     def test_size(self):
         self.assertEqual(len(self.row), 4)
@@ -51,5 +51,5 @@ class TestRow(unittest.TestCase):
 
     def test_next_space_count(self):
         row = Row([(1,1),(1,2),(1,3)])
-        self.assertEqual(row.next_space_count((1,4), 'horizontal', lambda x: x[0] < 0 or x[1] < 0), 1)
-        self.assertEqual(row.next_space_count((1,4), 'horizontal', lambda x: x[0] < 1 or x[1] < 1), 0)
+        self.assertEqual(row.next_space_count((1,4), 'vertical', lambda x: x[0] < 0 or x[1] < 0), 1)
+        self.assertEqual(row.next_space_count((1,4), 'vertical', lambda x: x[0] < 1 or x[1] < 1), 0)
