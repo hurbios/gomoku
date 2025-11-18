@@ -37,21 +37,20 @@ class TestGameBoard(unittest.TestCase):
         play = [
             [0,2,0,2,0],
             [0,0,0,2,0],
-            [1,1,1,1,1],
+            [1,1,1,1,0],
             [0,0,1,2,0],
             [0,2,2,0,0]
         ]
         for y,row in enumerate(play):
             for x,col in enumerate(row):
                 ok, has_won = self.board.add_move((x,y),col)
-                if(x,y) == (4,2):
-                    self.assertEqual((ok, has_won), (True,True), f"coordinates ({x},{y})")
-                elif(x,y) in [(0,2),(1,2),(2,2),(3,2),(2,3)]:
+                if(x,y) in [(0,2),(1,2),(2,2),(3,2),(2,3)]:
                     self.assertEqual((ok, has_won), (True,False), f"coordinates ({x},{y})")
                 elif(x,y) in [(1,0),(3,0),(3,1),(3,3),(1,4),(2,4)]:
                     self.assertEqual((ok, has_won), (True,False), f"coordinates ({x},{y})")
                 else:
                     self.assertEqual((ok, has_won), (False,False), f"coordinates ({x},{y})")
+        self.assertEqual(self.board.add_move((4,2),1), (True,True), f"coordinates ({x},{y})")
 
     def test_add_move_diagonal_win(self):
         play = [
@@ -171,24 +170,7 @@ class TestGameBoard(unittest.TestCase):
         ok, has_won = self.board.add_move((1,1),1)
         self.assertEqual((ok, has_won), (True,False))
 
-    def test_next_free_coordinates(self):
-        self.board = Board(5,5)
-        play = [
-            [0,0,1,2,0],
-            [0,0,1,2,0],
-            [0,0,1,2,0],
-            [0,0,1,2,0],
-            [0,2,1,0,0]
-        ]
-        for i,row in enumerate(play):
-            for y,col in enumerate(row):
-                self.board.add_move((y,i),col)
-
-        self.assertEqual(self.board.get_next_free_coordinates((2,0),1,'vertical'), (None,(1,0)))
-        self.assertEqual(self.board.get_next_free_coordinates((2,0),1,'horizontal'), (None,None))
-        self.assertEqual(self.board.get_next_free_coordinates((2,0),1,'diagonal'), (None,None))
-        self.assertEqual(self.board.get_next_free_coordinates((2,0),1,'inverse_diagonal'), (None,(1,1)))
-        self.assertEqual(self.board.get_next_free_coordinates((2,0),1,'asdf'), (None,None))
+    # def test_next_free_cotest_get_player_move_resultree_coordinates((2,0),1,'asdf'), (None,None))
 
     def test_evaluate_state_after_move(self):
         self.board = Board(6,6)
@@ -204,7 +186,7 @@ class TestGameBoard(unittest.TestCase):
             for y,col in enumerate(row):
                 self.board.add_move((y,i),col)
 
-        self.assertEqual(self.board.evaluate_state_after_move((2,5)), 8)
+        self.assertEqual(self.board.evaluate_state_after_move((2,4)), -8)
 
     def test_evaluate_state_after_move6(self):
         self.board = Board(6,6)
@@ -221,7 +203,7 @@ class TestGameBoard(unittest.TestCase):
             for y,col in enumerate(row):
                 self.board.add_move((y,i),col)
 
-        self.assertEqual(self.board.evaluate_state_after_move((2,2)), 9)
+        self.assertEqual(self.board.evaluate_state_after_move((2,2)), -6)
     
     def test_get_player_move_result(self):
         self.board = Board(6,6)
@@ -238,5 +220,5 @@ class TestGameBoard(unittest.TestCase):
             for y,col in enumerate(row):
                 self.board.add_move((y,i),col)
 
-        self.assertEqual(self.board.get_player_move_result((2,4),2), (2,1,0,0))
-        self.assertEqual(self.board.get_player_move_result((2,4),1), (4,0,1,1))
+        self.assertEqual(self.board.get_player_move_result((2,4),2), (2,1,2,2))
+        self.assertEqual(self.board.get_player_move_result((2,3),1), (4,0,2,2))

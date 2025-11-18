@@ -1,7 +1,9 @@
+import time
+from gomoku.core.helper import draw
 from gomoku.core.game_board import Board
 
 MAX_DEPTH = 1
-MOVE_RANGE = 2
+MOVE_RANGE = 1
 
 def get_player(is_player1:int)->int:
     return 1 if is_player1 else 2
@@ -44,14 +46,17 @@ class Minimax:
         # for coordinates in [(2,2),(3,2),(4,2)]:
         for coordinates in self.__board.get_surrounding_free_coordinates(last_move, MOVE_RANGE):
             self.__board.add_move(coordinates,2)
-            print(coordinates, self.__board.get_player_move_result(coordinates,2), self.__board.evaluate_state_after_move(coordinates))
+            print(coordinates, self.__board.get_player_move_result(coordinates,2), self.__board.evaluate_state_after_move(coordinates), flush=True)
             move_score, moves_inner = self.minimax(coordinates, MAX_DEPTH - 1, 1)
+            draw(self.__board)
             self.__board.remove_move(coordinates,2)
             # print(coordinates, move_score, high_score, "curr score = ", self.__board.evaluate_state_after_move(coordinates), "player1: ", self.__board.get_player_pieces(1), "player2",self.__board.get_player_pieces(2))
             if move_score > high_score:
                 high_score = move_score
                 move = coordinates
                 moves=moves_inner
-                moves.append(coordinates)
-        print("final: ", move, move_score, moves)
+            
+        print("final: ", move, move_score, moves, "====================================", flush=True)
+        print("player1: ", self.__board.get_player_pieces(1), flush=True)
+        print("player2: ", self.__board.get_player_pieces(2), flush=True)
         return move

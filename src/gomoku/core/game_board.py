@@ -1,5 +1,6 @@
 from itertools import product
 from functools import reduce
+# from typing import Generator
 from gomoku.core.player_rows import Row
 from gomoku.core.directions import DIRECTIONS
 
@@ -14,7 +15,22 @@ class Board:
 
     def size(self):
         return len(self.__moves), len(self.__moves[0])
-            
+    
+    @property
+    def height(self):
+        return self.__height
+    
+    @property
+    def width(self):
+        return self.__width
+    
+    @property
+    def moves(self):
+        return self.__moves
+
+    def __get_player_rows_list(self, player:int)->list[Row]:
+        return self.__player1_rows if player == 1 else self.__player2_rows
+
     def __is_outside_of_game_area(self, move:tuple[int, int]):
         return any(iter([
                 (self.__width <= move[0]),
@@ -23,7 +39,7 @@ class Board:
                 (move[1] < 0),
               ]))
 
-    def __get_rows_containing_move(self, move:tuple[int, int], player:int):
+    def __get_rows_containing_move(self, move:tuple[int, int], player:int)->list[Row]:
         rows_containing_move = []
         player_rows = self.__player1_rows if player == 1 else self.__player2_rows
         for row in player_rows:
@@ -31,44 +47,61 @@ class Board:
                 rows_containing_move.append(row)
         return rows_containing_move
 
-    def __get_close_rows(self, move:tuple[int, int], player:int):
-        def surrounding_moves(move:tuple[int,int]):
-            for offset in DIRECTIONS.values():
-                yield (move[0]-offset['low'][0], move[1]-offset['low'][1])
-                yield (move[0]-offset['high'][0], move[1]-offset['high'][1])
+    def __get_players_surrounding_rows_in_directions(self, move:tuple[int, int], player:int)->dict[str, Row]:
+        def get_surrounding_moves_of_direction(move:tuple[int,int], direction:str)->tuple[tuple[int,int],tuple[int,int]]:
+            offset = DIRECTIONS[direction]
+            return (
+                (move[0]-offset['low'][0], move[1]-offset['low'][1]),
+                (move[0]-offset['high'][0], move[1]-offset['high'][1])
+            )
         
-        player_close_rows = []
-        for surrounding_move in surrounding_moves(move):
-            player_close_rows += self.__get_rows_containing_move(surrounding_move, player)
+        players_surrounding_rows_in_direction = {}
+        for direction in DIRECTIONS.keys():
+            surrounding_moves_in_direction = get_surrounding_moves_of_direction(move, direction)
+            players_surrounding_rows_in_direction[direction] = self.__get_rows_containing_move(surrounding_moves_in_direction[0], player)
+            players_surrounding_rows_in_direction[direction] += self.__get_rows_containing_move(surrounding_moves_in_direction[1], player)
 
-        return player_close_rows
+        return players_surrounding_rows_in_direction
 
     def __add_building_move_to_rows(self, move:tuple[int, int], player:int):
-        player_rows = self.__get_close_rows(move, player)
+        player_rows = self.__get_players_surrounding_rows_in_directions(move, player)
         rows_added = []
+        for direction in DIRECTIONS.keys():
+            direction_row_added = None
+            for row in player_rows[direction]:
+                if row.row_relation(move) == 'builds': #TODO improve by adding direction to relation check
+                    # print('builds')
+                    if not direction_row_added:
+                        # print('no dir row')
+                        direction_row_added = row
+                        row.add(move)
+                        rows_added.append(row)
+                    else:
+                        # print('yes dir row')
+                        direction_row_added.join_row(move, row) # join connected same direction rows
+                elif row.row_relation(move) == 'touches': # create new row for touching but not building rows
+                    # print('touches')
+                    if not direction_row_added:
+                        # print('no dir row')
+                        new_row = Row([move, row.get_touching_building_move(move, direction)])
+                        direction_row_added = new_row
+                        rows_added.append(new_row)
+                        self.__get_player_rows_list(player).append(new_row)
+                    else:
+                        # print('yes dir row')
+                        direction_row_added.add(row.get_touching_building_move(move, direction)) # join connected same direction rows
 
-        if len(player_rows) > 0:
-            for row in player_rows:
-                if row.row_relation(move) == 'builds':
-                    row.add(move)
-                    rows_added.append(row)
-        
-        #TODO: create new row for touching but not building rows 
-
-        if len(rows_added) <= 0:
+        if not rows_added:
             new_row = Row([move])
-            if player == 1:
-                self.__player1_rows.append(new_row)
-            else:
-                self.__player2_rows.append(new_row)
+            self.__get_player_rows_list(player).append(new_row)
             rows_added.append(new_row)
 
         return rows_added
 
     # Returns tuple: (True if player piece was added, True if player wins)
     def add_move(self, move:tuple[int, int], player:int)->tuple[bool, bool]:
-        # Check that the move is within the game area boundaries
-        if self.__is_outside_of_game_area(move):
+        # Check that the move is within the game area boundaries and valid player
+        if self.__is_outside_of_game_area(move) or player not in [1,2]:
             return False, False
 
         # Check that no piece exists yet in the move coordinates
@@ -81,10 +114,8 @@ class Board:
         # Add move to players pieces and on game board
         self.__moves[move[0]][move[1]] = player
 
-        # TODO: handle joining rows if needed
-        
         added_rows = self.__add_building_move_to_rows(move, player)
-        # print(added_rows)
+        print('added_rows', len(added_rows[len(added_rows)-1]), flush=True)
         for row in added_rows:
             if len(row) >= 5:
                 return True, True
@@ -94,11 +125,19 @@ class Board:
     def __remove_move_from_rows(self, move:tuple[int, int], player:int):
         rows = self.__get_rows_containing_move(move, player)
         for row in rows:
-            row.remove(move)
+            if len(row) <= 1:
+                player_rows = self.__get_player_rows_list(player)
+                player_rows.remove(row)
+            else:
+                new_row = row.remove(move) # will split to old and new row if move is not at the end of row
+                if new_row:
+                    self.__get_player_rows_list(player).append(new_row)
+        return
 
     def remove_move(self, move:tuple[int, int], player:int):
         self.__moves[move[0]][move[1]] = 0
         self.__remove_move_from_rows(move, player)
+        return
 
     def get_player_pieces(self, player:int):
         moves = []
@@ -111,6 +150,7 @@ class Board:
         self.__moves = [[0 for _ in range(self.__height)] for _ in range(self.__width)]
         self.__player1_rows = []
         self.__player2_rows = []
+        return
 
     def get_surrounding_free_coordinates(self, position:tuple[int, int], depth:int=1):
         def surrounding_moves():
@@ -143,28 +183,30 @@ class Board:
             rows = self.__get_rows_containing_move(move, player)
             rows.sort(key=len,reverse=True)
             if len(rows) > 0:
+                # print('rows[0]')
+                # print(rows[0])
                 count0 = len(rows[0])
-                next_spaces_count_0 = sum(1 for n in rows[0].next_spaces() if not self.__moves[n[0]][n[1]])
+                next_spaces_count_0 = sum(1 for n in rows[0].next_spaces() if not self.__moves[n[0]][n[1]] and not self.__is_outside_of_game_area(n))
                 if len(rows) > 1:
                     count1 = len(rows[1])
-                    next_spaces_count_1 = sum(1 for n in rows[1].next_spaces() if not self.__moves[n[0]][n[1]])
-        else:
-            rows = self.__get_close_rows(move, 2 if player == 1 else 1)
-            dir_rows = {}
-            for row in rows:
-                row_direction = row[1].get_direction(move)
-                if row_direction not in dir_rows:
-                    dir_rows[row_direction] = [0,0] # len, empty space
-                dir_rows[row_direction][0] += len(row[1])
-                dir_rows[row_direction][1] += row[1].next_space_count(move, row_direction, self.__is_outside_of_game_area)
+                    next_spaces_count_1 = sum(1 for n in rows[1].next_spaces() if not self.__moves[n[0]][n[1]] and not self.__is_outside_of_game_area(n))
+        # else:
+        #     other_players_rows_in_direction = self.__get_players_surrounding_rows_in_directions(move, 2 if player == 1 else 1)
+        #     dir_rows = {}
+        #     for row in rows:
+        #         row_direction = row.get_direction(move)
+        #         if row_direction not in dir_rows:
+        #             dir_rows[row_direction] = [0,0] # len, empty space
+        #         dir_rows[row_direction][0] += len(row)
+        #         dir_rows[row_direction][1] += row.next_space_count(move, row_direction, self.__is_outside_of_game_area)
             
-            for val in dir_rows.values():
-                if val[0] > count0:
-                    count0 = val[0]
-                    next_spaces_count_0 = val[1]
-                elif val[0] > count1:
-                    count1 = val[0]
-                    next_spaces_count_1 = val[1]
+        #     for val in dir_rows.values():
+        #         if val[0] > count0:
+        #             count0 = val[0]
+        #             next_spaces_count_0 = val[1]
+        #         elif val[0] > count1:
+        #             count1 = val[0]
+        #             next_spaces_count_1 = val[1]
 
         return count0, next_spaces_count_0, count1, next_spaces_count_1
 
@@ -183,8 +225,8 @@ class Board:
             second_ai_empty_spaces
         ) = self.get_player_move_result(move, 2)
 
-        print("counts: ", count_usr, usr_empty_spaces)
-        print(self.__player1_rows[0].moves,self.__player1_rows[0].contains(move), self.__player1_rows[0].row_relation(move))
+        # print("counts: ", count_usr, usr_empty_spaces)
+        # print(self.__player1_rows[0].moves,self.__player1_rows[0].contains(move), self.__player1_rows[0].row_relation(move))
 
         evaluations = (
             # # 0.  LOST - other has 5th in row ((-8))
