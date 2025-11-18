@@ -28,6 +28,20 @@ class Board:
     def moves(self):
         return self.__moves
 
+    @property
+    def player1_rows(self)->list[Row]:
+        print('player1 rows')
+        for row in self.__player1_rows:
+            print(row)
+        return self.__player1_rows
+    
+    @property
+    def player2_rows(self)->list[Row]:
+        print('player2 rows')
+        for row in self.__player2_rows:
+            print(row)
+        return self.__player2_rows
+    
     def __get_player_rows_list(self, player:int)->list[Row]:
         return self.__player1_rows if player == 1 else self.__player2_rows
 
@@ -63,9 +77,12 @@ class Board:
 
         return players_surrounding_rows_in_direction
 
+
+    ## ERROR. The rows are inserted twice if touching 
     def __add_building_move_to_rows(self, move:tuple[int, int], player:int):
         player_rows = self.__get_players_surrounding_rows_in_directions(move, player)
         rows_added = []
+        rows_to_remove = []
         for direction in DIRECTIONS.keys():
             direction_row_added = None
             for row in player_rows[direction]:
@@ -79,8 +96,9 @@ class Board:
                     else:
                         # print('yes dir row')
                         direction_row_added.join_row(move, row) # join connected same direction rows
+                        rows_to_remove.append(row)
                 elif row.row_relation(move) == 'touches': # create new row for touching but not building rows
-                    # print('touches')
+                    print('touches')
                     if not direction_row_added:
                         # print('no dir row')
                         new_row = Row([move, row.get_touching_building_move(move, direction)])
@@ -90,13 +108,49 @@ class Board:
                     else:
                         # print('yes dir row')
                         direction_row_added.add(row.get_touching_building_move(move, direction)) # join connected same direction rows
-
-        if not rows_added:
+        for row in rows_to_remove:
+            self.__get_player_rows_list(player).remove(row)
+        if len(rows_added) <= 0:
             new_row = Row([move])
             self.__get_player_rows_list(player).append(new_row)
             rows_added.append(new_row)
 
         return rows_added
+    
+    # def __add_building_move_to_rows(self, move:tuple[int, int], player:int):
+    #     player_rows = self.__get_players_surrounding_rows_in_directions(move, player)
+    #     rows_added = []
+    #     for direction in DIRECTIONS.keys():
+    #         direction_row_added = None
+    #         for row in player_rows[direction]:
+    #             if row.row_relation(move) == 'builds': #TODO improve by adding direction to relation check
+    #                 print('builds')
+    #                 if not direction_row_added:
+    #                     print('no dir row')
+    #                     direction_row_added = row
+    #                     row.add(move)
+    #                     rows_added.append(row)
+    #                 else:
+    #                     print('yes dir row')
+    #                     direction_row_added.join_row(move, row) # join connected same direction rows
+    #             elif row.row_relation(move) == 'touches': # create new row for touching but not building rows
+    #                 print('touches')
+    #                 if not direction_row_added:
+    #                     print('no dir row')
+    #                     new_row = Row([move, row.get_touching_building_move(move, direction)])
+    #                     direction_row_added = new_row
+    #                     rows_added.append(new_row)
+    #                     self.__get_player_rows_list(player).append(new_row)
+    #                 else:
+    #                     print('yes dir row')
+    #                     direction_row_added.add(row.get_touching_building_move(move, direction)) # join connected same direction rows
+
+    #     if len(rows_added) <= 0:
+    #         new_row = Row([move])
+    #         self.__get_player_rows_list(player).append(new_row)
+    #         rows_added.append(new_row)
+
+    #     return rows_added
 
     # Returns tuple: (True if player piece was added, True if player wins)
     def add_move(self, move:tuple[int, int], player:int)->tuple[bool, bool]:
@@ -132,11 +186,15 @@ class Board:
                 new_row = row.remove(move) # will split to old and new row if move is not at the end of row
                 if new_row:
                     self.__get_player_rows_list(player).append(new_row)
+                if len(row) <= 1:
+                    player_rows = self.__get_player_rows_list(player)
+                    player_rows.remove(row)
         return
 
     def remove_move(self, move:tuple[int, int], player:int):
         self.__moves[move[0]][move[1]] = 0
         self.__remove_move_from_rows(move, player)
+        self.player1_rows #TODO: remove líne
         return
 
     def get_player_pieces(self, player:int):
