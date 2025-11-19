@@ -98,7 +98,7 @@ class Board:
                         direction_row_added.join_row(move, row) # join connected same direction rows
                         rows_to_remove.append(row)
                 elif row.row_relation(move) == 'touches': # create new row for touching but not building rows
-                    print('touches')
+                    # print('touches')
                     if not direction_row_added:
                         # print('no dir row')
                         new_row = Row([move, row.get_touching_building_move(move, direction)])

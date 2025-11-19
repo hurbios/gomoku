@@ -65,7 +65,7 @@ class Row:
     def join_row(self, move, row_to_join):
         #TODO: create new row if row is not same direction. Append only one in row_to_join if different direction.
         self.add(move)
-        if self._direction == row_to_join.direction:
+        if self._direction == row_to_join.direction or not row_to_join.direction:
             for m in row_to_join.moves:
                 self.add(m)
         self.__refresh_row()
