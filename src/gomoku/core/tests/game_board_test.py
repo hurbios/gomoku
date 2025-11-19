@@ -263,4 +263,35 @@ class TestGameBoard(unittest.TestCase):
         self.board.remove_move((1,2),1)
         self.assertEqual(len(self.board.player1_rows), 2)
         self.assertEqual(len(self.board.player2_rows), 6)
+        
+        self.board.remove_move((4,3),2)
+        self.assertEqual(len(self.board.player1_rows), 2)
+        self.assertEqual(len(self.board.player2_rows), 5)
+        
+        self.board.remove_move((5,3),2)
+        self.assertEqual(len(self.board.player1_rows), 2)
+        self.assertEqual(len(self.board.player2_rows), 4)
+
+    def test_remove_move2(self):
+        self.board = Board(6,6)
+
+        play = [
+            [0,0,0,0,0,0],
+            [0,0,2,0,0,0],
+            [0,0,2,1,0,0],
+            [0,0,0,1,0,0],
+            [0,0,0,0,0,0],
+            [0,0,0,0,0,0]
+        ]
+        for i,row in enumerate(play):
+            for y,col in enumerate(row):
+                self.board.add_move((y,i),col)
+
+        self.assertEqual(len(self.board.player1_rows), 1)
+        self.assertEqual(len(self.board.player2_rows), 1)
+        
+        self.board.remove_move((2,2),2)
+        self.assertEqual(len(self.board.player1_rows), 1)
+        self.assertEqual(len(self.board.player2_rows), 1)
+        
 

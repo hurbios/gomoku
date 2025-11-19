@@ -81,13 +81,14 @@ class Row:
 
     def remove(self, move):
         if move != self._ends[0] and move != self._ends[1]:
-            print("=====  ends =====", self._ends, move)
             split_at = self._moves.index(move)
+            print(f"split row {self._moves} to {self._moves[split_at:]} and {self._moves[:split_at]}, ends: {self._ends}, move: {move}")
             new_row = Row(self._moves[split_at:])
             self._moves = self._moves[:split_at]
             self.__refresh_row()
             return new_row
         else:
+            print(f"remove {move} from row", self._moves)
             self._moves.remove(move)
             self.__refresh_row()
             return None

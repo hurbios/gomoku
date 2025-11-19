@@ -35,7 +35,6 @@ class Minimax:
                     high_score = move_score
                     moves=moves_inner
                     moves.append(coordinates)
-
         # if(move_score >= 1):
         #     print("-"*depth, move_score, player)
         return move_score, moves
@@ -46,7 +45,7 @@ class Minimax:
         # for coordinates in [(2,2),(3,2),(4,2)]:
         for coordinates in self.__board.get_surrounding_free_coordinates(last_move, MOVE_RANGE):
             self.__board.add_move(coordinates,2)
-            print(coordinates, self.__board.get_player_move_result(coordinates,2), self.__board.evaluate_state_after_move(coordinates), flush=True)
+            # print(coordinates, self.__board.get_player_move_result(coordinates,2), self.__board.evaluate_state_after_move(coordinates), flush=True)
             move_score, moves_inner = self.minimax(coordinates, MAX_DEPTH - 1, 1)
             draw(self.__board)
             self.__board.remove_move(coordinates,2)
@@ -55,6 +54,8 @@ class Minimax:
                 high_score = move_score
                 move = coordinates
                 moves=moves_inner
+            print("player1: ", self.__board.get_player_pieces(1), flush=True)
+            print("player2: ", self.__board.get_player_pieces(2), flush=True)
             
         print("final: ", move, move_score, moves, "====================================", flush=True)
         print("player1: ", self.__board.get_player_pieces(1), flush=True)

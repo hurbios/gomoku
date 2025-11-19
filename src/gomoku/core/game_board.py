@@ -187,14 +187,15 @@ class Board:
                 if new_row:
                     self.__get_player_rows_list(player).append(new_row)
                 if len(row) <= 1:
-                    player_rows = self.__get_player_rows_list(player)
-                    player_rows.remove(row)
+                    if not self.__get_rows_containing_move(row.moves[0], player):
+                        player_rows = self.__get_player_rows_list(player)
+                        player_rows.remove(row)
         return
 
     def remove_move(self, move:tuple[int, int], player:int):
         self.__moves[move[0]][move[1]] = 0
         self.__remove_move_from_rows(move, player)
-        self.player1_rows #TODO: remove líne
+        # self.player1_rows #TODO: remove líne
         return
 
     def get_player_pieces(self, player:int):
