@@ -3,7 +3,7 @@ from gomoku.core.helper import draw
 from gomoku.core.game_board import Board
 
 MAX_DEPTH = 1
-MOVE_RANGE = 1
+MOVE_RANGE = 6
 
 def get_player(is_player1:int)->int:
     return 1 if is_player1 else 2

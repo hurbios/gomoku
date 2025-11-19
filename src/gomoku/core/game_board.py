@@ -185,9 +185,10 @@ class Board:
             else:
                 new_row = row.remove(move) # will split to old and new row if move is not at the end of row
                 if new_row:
-                    self.__get_player_rows_list(player).append(new_row)
+                    if len(new_row) > 1 or len(self.__get_rows_containing_move(new_row.moves[0], player)) <= 1:
+                        self.__get_player_rows_list(player).append(new_row)
                 if len(row) <= 1:
-                    if not self.__get_rows_containing_move(row.moves[0], player):
+                    if len(self.__get_rows_containing_move(row.moves[0], player)) > 1:
                         player_rows = self.__get_player_rows_list(player)
                         player_rows.remove(row)
         return
@@ -245,10 +246,10 @@ class Board:
                 # print('rows[0]')
                 # print(rows[0])
                 count0 = len(rows[0])
-                next_spaces_count_0 = sum(1 for n in rows[0].next_spaces() if not self.__moves[n[0]][n[1]] and not self.__is_outside_of_game_area(n))
+                next_spaces_count_0 = sum(1 for n in rows[0].next_spaces() if not self.__is_outside_of_game_area(n) and not self.__moves[n[0]][n[1]])
                 if len(rows) > 1:
                     count1 = len(rows[1])
-                    next_spaces_count_1 = sum(1 for n in rows[1].next_spaces() if not self.__moves[n[0]][n[1]] and not self.__is_outside_of_game_area(n))
+                    next_spaces_count_1 = sum(1 for n in rows[1].next_spaces() if not self.__is_outside_of_game_area(n) and not self.__moves[n[0]][n[1]])
         # else:
         #     other_players_rows_in_direction = self.__get_players_surrounding_rows_in_directions(move, 2 if player == 1 else 1)
         #     dir_rows = {}
