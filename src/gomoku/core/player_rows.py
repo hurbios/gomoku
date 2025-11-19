@@ -1,4 +1,5 @@
 from gomoku.core.directions import DIRECTIONS
+from gomoku.core.config import DEBUG
 
 class Row:
     def __init__(self, moves):
@@ -37,7 +38,7 @@ class Row:
 
     def __refresh_row(self):
         if len(self._moves) > 1:
-            print(self._moves, flush=True)
+            DEBUG and print(self._moves, flush=True)
             self._moves.sort()
         self.__refresh_row_ends()
         if len(self) <= 1:
@@ -82,13 +83,13 @@ class Row:
     def remove(self, move):
         if move != self._ends[0] and move != self._ends[1]:
             split_at = self._moves.index(move)
-            print(f"split row {self._moves} to {self._moves[split_at+1:]} and {self._moves[:split_at]}, ends: {self._ends}, move: {move}")
+            DEBUG and print(f"split row {self._moves} to {self._moves[split_at+1:]} and {self._moves[:split_at]}, ends: {self._ends}, move: {move}")
             new_row = Row(self._moves[split_at+1:])
             self._moves = self._moves[:split_at]
             self.__refresh_row()
             return new_row
         else:
-            print(f"remove {move} from row", self._moves)
+            DEBUG and print(f"remove {move} from row", self._moves)
             self._moves.remove(move)
             self.__refresh_row()
             return None
@@ -151,7 +152,7 @@ class Row:
 
     def next_space_count(self, move, direction, is_out_of_game_fn):
         spaces = self.next_spaces(direction=direction)
-        print(move, spaces, flush=True)
+        DEBUG and print(move, spaces, flush=True)
         count = 0 if is_out_of_game_fn(spaces[0]) or spaces[0] == move else 1
         count += 0 if is_out_of_game_fn(spaces[1]) or spaces[1] == move else 1
         return count

@@ -1,0 +1,3 @@
+INSPECT_DEPTH = 1
+MAX_DEPTH = 4
+DEBUG = False

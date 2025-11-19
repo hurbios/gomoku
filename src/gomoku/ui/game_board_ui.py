@@ -108,7 +108,7 @@ class BoardUI:
             if self.player == 2:
                 time.sleep(0.5)
                 new_piece = self.minimax.get_next_move(prev_piece)
-                can_move, wins = self.board.add_move(new_piece, self.player) if new_piece else (None, None)
+                can_move, wins = self.board.add_move(new_piece, self.player, update_inspect_moves=True) if new_piece else (None, None)
                 time.sleep(0.1)
                 print("==============================================================================")
                 print("player1: ", self.board.get_player_pieces(1), flush=True)
@@ -121,7 +121,7 @@ class BoardUI:
                     if event.type == pygame.MOUSEBUTTONDOWN:
                         new_piece = (event.pos[0]//BLOCK_SIZE, event.pos[1]//BLOCK_SIZE)
                         prev_piece = new_piece
-                        can_move, wins = self.board.add_move(new_piece, self.player)
+                        can_move, wins = self.board.add_move(new_piece, self.player, update_inspect_moves=True)
                         self.actions_after_player_move(can_move, wins)
                     if event.type == pygame.QUIT:
                         sys.exit()

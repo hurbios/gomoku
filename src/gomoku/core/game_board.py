@@ -3,6 +3,7 @@ from functools import reduce
 # from typing import Generator
 from gomoku.core.player_rows import Row
 from gomoku.core.directions import DIRECTIONS
+from gomoku.core.config import INSPECT_DEPTH, DEBUG
 
 
 class Board:
@@ -10,8 +11,9 @@ class Board:
         self.__width = width
         self.__height = height
         self.__moves = [[0 for _ in range(height)] for _ in range(width)]
-        self.__player1_rows = []
-        self.__player2_rows = []
+        self.__player1_rows = list()
+        self.__player2_rows = list()
+        self.__inspect_moves = set()
 
     def size(self):
         return len(self.__moves), len(self.__moves[0])
@@ -30,17 +32,23 @@ class Board:
 
     @property
     def player1_rows(self)->list[Row]:
-        print('player1 rows')
-        for row in self.__player1_rows:
-            print(row)
+        if DEBUG:
+            print('player1 rows')
+            for row in self.__player1_rows:
+                print(row)
         return self.__player1_rows
     
     @property
     def player2_rows(self)->list[Row]:
-        print('player2 rows')
-        for row in self.__player2_rows:
-            print(row)
+        if DEBUG:
+            print('player2 rows')
+            for row in self.__player2_rows:
+                print(row)
         return self.__player2_rows
+    
+    @property
+    def inspect_moves(self):
+        return self.__inspect_moves
     
     def __get_player_rows_list(self, player:int)->list[Row]:
         return self.__player1_rows if player == 1 else self.__player2_rows
@@ -87,26 +95,26 @@ class Board:
             direction_row_added = None
             for row in player_rows[direction]:
                 if row.row_relation(move) == 'builds': #TODO improve by adding direction to relation check
-                    # print('builds')
+                    # DEBUG and print('builds')
                     if not direction_row_added:
-                        # print('no dir row')
+                        # DEBUG and print('no dir row')
                         direction_row_added = row
                         row.add(move)
                         rows_added.append(row)
                     else:
-                        # print('yes dir row')
+                        # DEBUG and print('yes dir row')
                         direction_row_added.join_row(move, row) # join connected same direction rows
                         rows_to_remove.append(row)
                 elif row.row_relation(move) == 'touches': # create new row for touching but not building rows
-                    # print('touches')
+                    # DEBUG and print('touches')
                     if not direction_row_added:
-                        # print('no dir row')
+                        # DEBUG and print('no dir row')
                         new_row = Row([move, row.get_touching_building_move(move, direction)])
                         direction_row_added = new_row
                         rows_added.append(new_row)
                         self.__get_player_rows_list(player).append(new_row)
                     else:
-                        # print('yes dir row')
+                        # DEBUG and print('yes dir row')
                         direction_row_added.add(row.get_touching_building_move(move, direction)) # join connected same direction rows
         for row in rows_to_remove:
             self.__get_player_rows_list(player).remove(row)
@@ -117,8 +125,13 @@ class Board:
 
         return rows_added
 
+    def __recalculate_inspectable_area_after_move_addition(self, move:tuple[int,int], depth:int):
+        if move in self.__inspect_moves:
+            self.__inspect_moves.remove(move)
+        self.__inspect_moves.update(self.get_surrounding_free_coordinates(move, depth))
+
     # Returns tuple: (True if player piece was added, True if player wins)
-    def add_move(self, move:tuple[int, int], player:int)->tuple[bool, bool]:
+    def add_move(self, move:tuple[int, int], player:int, update_inspect_moves:bool = False)->tuple[bool, bool]:
         # Check that the move is within the game area boundaries and valid player
         if self.__is_outside_of_game_area(move) or player not in [1,2]:
             return False, False
@@ -134,7 +147,11 @@ class Board:
         self.__moves[move[0]][move[1]] = player
 
         added_rows = self.__add_building_move_to_rows(move, player)
-        print('added_rows', len(added_rows[len(added_rows)-1]), flush=True)
+        DEBUG and print('added_rows', len(added_rows[len(added_rows)-1]), flush=True)
+
+        if update_inspect_moves:
+            self.__recalculate_inspectable_area_after_move_addition(move, INSPECT_DEPTH)
+
         for row in added_rows:
             if len(row) >= 5:
                 return True, True
@@ -173,8 +190,9 @@ class Board:
 
     def reset(self):
         self.__moves = [[0 for _ in range(self.__height)] for _ in range(self.__width)]
-        self.__player1_rows = []
-        self.__player2_rows = []
+        self.__player1_rows = list()
+        self.__player2_rows = list()
+        self.__inspect_moves = set()
         return
 
     def get_surrounding_free_coordinates(self, position:tuple[int, int], depth:int=1):
@@ -185,11 +203,11 @@ class Board:
             for offset in move_offsets:
                 yield (position[0]+offset[0], position[1]+offset[1])
 
-        free_coordinates = []
+        free_coordinates = set()
         for surrounding_move in surrounding_moves():
             if not self.__is_outside_of_game_area(surrounding_move):
                 if not self.__moves[surrounding_move[0]][surrounding_move[1]]:
-                    free_coordinates.append(surrounding_move)
+                    free_coordinates.add(surrounding_move)
 
         return free_coordinates
 
