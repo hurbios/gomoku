@@ -3,6 +3,10 @@ from gomoku.core.helper import draw
 from gomoku.core.game_board import Board
 from gomoku.core.config import INSPECT_DEPTH, MAX_DEPTH, DEBUG
 
+WINNING_SCORES = {
+    'player1': {-8,-6},
+    'player2': {8,5}
+}
 
 def get_player(is_player1:int)->int:
     return 1 if is_player1 else 2
@@ -17,6 +21,10 @@ class Minimax:
         if depth <= 0:
             return last_move_score
             # return last_move_score, [last_move]
+
+        if ((not is_player1 and last_move_score == WINNING_SCORES["player1"]) 
+            or (is_player1 and last_move_score == WINNING_SCORES["player2"])):
+            return last_move_score
         # moves = []
 
         low_score = 100
