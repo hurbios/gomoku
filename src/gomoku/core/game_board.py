@@ -1,9 +1,10 @@
 from itertools import product
-from functools import reduce
+# from functools import reduce
 # from typing import Generator
 from gomoku.core.player_rows import Row
 from gomoku.core.directions import DIRECTIONS
 from gomoku.core.config import INSPECT_DEPTH, DEBUG
+from gomoku.core.helper import debug_log
 
 
 class Board:
@@ -11,21 +12,21 @@ class Board:
         self.__width = width
         self.__height = height
         self.__moves = [[0 for _ in range(height)] for _ in range(width)]
-        self.__player1_rows = list()
-        self.__player2_rows = list()
+        self.__player1_rows = []
+        self.__player2_rows = []
         self.__inspect_moves = set()
 
     def size(self):
         return len(self.__moves), len(self.__moves[0])
-    
+
     @property
     def height(self):
         return self.__height
-    
+
     @property
     def width(self):
         return self.__width
-    
+
     @property
     def moves(self):
         return self.__moves
@@ -33,29 +34,29 @@ class Board:
     @property
     def player1_rows(self)->list[Row]:
         if DEBUG:
-            print('player1 rows')
+            debug_log('player1 rows')
             for row in self.__player1_rows:
-                print(row)
+                debug_log(row)
         return self.__player1_rows
-    
+
     @property
     def player2_rows(self)->list[Row]:
         if DEBUG:
-            print('player2 rows')
+            debug_log('player2 rows')
             for row in self.__player2_rows:
-                print(row)
+                debug_log(row)
         return self.__player2_rows
-    
+
     @property
     def inspect_moves(self):
         return self.__inspect_moves
-    
+
     def __get_player_rows_list(self, player:int)->list[Row]:
         return self.__player1_rows if player == 1 else self.__player2_rows
 
     def is_free_space(self, move:tuple[int, int]):
         return not self.__moves[move[0]][move[1]]
-    
+
     def is_outside_of_game_area(self, move:tuple[int, int]):
         return any(iter([
                 (self.__width <= move[0]),
@@ -79,9 +80,9 @@ class Board:
                 (move[0]-offset['low'][0], move[1]-offset['low'][1]),
                 (move[0]-offset['high'][0], move[1]-offset['high'][1])
             )
-        
+
         players_surrounding_rows_in_direction = {}
-        for direction in DIRECTIONS.keys():
+        for direction in DIRECTIONS:
             surrounding_moves_in_direction = get_surrounding_moves_of_direction(move, direction)
             players_surrounding_rows_in_direction[direction] = self.__get_rows_containing_move(surrounding_moves_in_direction[0], player)
             players_surrounding_rows_in_direction[direction] += self.__get_rows_containing_move(surrounding_moves_in_direction[1], player)
@@ -89,12 +90,12 @@ class Board:
         return players_surrounding_rows_in_direction
 
 
-    ## ERROR. The rows are inserted twice if touching 
+    ## ERROR. The rows are inserted twice if touching
     def __add_building_move_to_rows(self, move:tuple[int, int], player:int):
         player_rows = self.__get_players_surrounding_rows_in_directions(move, player)
         rows_added = []
         rows_to_remove = []
-        for direction in DIRECTIONS.keys():
+        for direction in DIRECTIONS:
             direction_row_added = None
             for row in player_rows[direction]:
                 if row.row_relation(move) == 'builds': #TODO improve by adding direction to relation check
@@ -152,13 +153,13 @@ class Board:
         for row in self.__player1_rows:
             if move in row.surrounding_moves:
                 row.refresh_potential()
-        
+
         for row in self.__player2_rows:
             if move in row.surrounding_moves:
                 row.refresh_potential()
 
         added_rows = self.__add_building_move_to_rows(move, player)
-        DEBUG and print('added_rows', len(added_rows[len(added_rows)-1]), flush=True)
+        debug_log(f"added_rows {len(added_rows[len(added_rows)-1])}")
 
         if update_inspect_moves:
             self.__recalculate_inspectable_area_after_move_addition(move, INSPECT_DEPTH)
@@ -184,7 +185,6 @@ class Board:
                     if len(self.__get_rows_containing_move(row.moves[0], player)) > 1:
                         player_rows = self.__get_player_rows_list(player)
                         player_rows.remove(row)
-        return
 
     def remove_move(self, move:tuple[int, int], player:int):
         self.__moves[move[0]][move[1]] = 0
@@ -193,11 +193,10 @@ class Board:
         for row in self.__player1_rows:
             if move in row.surrounding_moves:
                 row.refresh_potential()
-        
+
         for row in self.__player2_rows:
             if move in row.surrounding_moves:
                 row.refresh_potential()
-        return
 
     def get_player_pieces(self, player:int):
         moves = []
@@ -208,10 +207,9 @@ class Board:
 
     def reset(self):
         self.__moves = [[0 for _ in range(self.__height)] for _ in range(self.__width)]
-        self.__player1_rows = list()
-        self.__player2_rows = list()
+        self.__player1_rows = []
+        self.__player2_rows = []
         self.__inspect_moves = set()
-        return
 
     def get_surrounding_free_coordinates(self, position:tuple[int, int], depth:int=1):
         def surrounding_moves():
@@ -240,13 +238,12 @@ class Board:
             score -= row.score
         for row in self.player2_rows:
             score += row.score
-        # DEBUG and print(f"score after player {player} move: {score}")
-        # print(f"depth {depth} score after player {player} move {move}: {score}", flush=True)
+        debug_log(f"depth {depth} score after player {player} move {move}: {score}")
         return score
 
     ### Below not currently used
 
-    # calculate touches to actually block!! 
+    # calculate touches to actually block!!
     def get_player_move_result(self, move, player):
         count0=0
         next_spaces_count_0=0
@@ -260,10 +257,14 @@ class Board:
                 # print('rows[0]')
                 # print(rows[0])
                 count0 = len(rows[0])
-                next_spaces_count_0 = sum(1 for n in rows[0].next_spaces() if not self.is_outside_of_game_area(n) and not self.__moves[n[0]][n[1]])
+                next_spaces_count_0 = sum(
+                    1 for n in rows[0].next_spaces() if not self.is_outside_of_game_area(n) and not self.__moves[n[0]][n[1]]
+                )
                 if len(rows) > 1:
                     count1 = len(rows[1])
-                    next_spaces_count_1 = sum(1 for n in rows[1].next_spaces() if not self.is_outside_of_game_area(n) and not self.__moves[n[0]][n[1]])
+                    next_spaces_count_1 = sum(
+                        1 for n in rows[1].next_spaces() if not self.is_outside_of_game_area(n) and not self.__moves[n[0]][n[1]]
+                    )
         # else:
         #     other_players_rows_in_direction = self.__get_players_surrounding_rows_in_directions(move, 2 if player == 1 else 1)
         #     dir_rows = {}
@@ -273,7 +274,7 @@ class Board:
         #             dir_rows[row_direction] = [0,0] # len, empty space
         #         dir_rows[row_direction][0] += len(row)
         #         dir_rows[row_direction][1] += row.next_space_count(move, row_direction, self.is_outside_of_game_area)
-            
+
         #     for val in dir_rows.values():
         #         if val[0] > count0:
         #             count0 = val[0]

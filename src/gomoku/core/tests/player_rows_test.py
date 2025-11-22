@@ -12,10 +12,10 @@ class TestRow(unittest.TestCase):
 
     def test_size(self):
         self.assertEqual(len(self.row), 4)
-    
+
     def test_ends(self):
         self.assertEqual(self.row.ends, ((2,0),(2,3)))
-    
+
     def test_moves(self):
         self.assertEqual(self.row.moves, [(2,0),(2,1),(2,2),(2,3)])
 
@@ -73,7 +73,7 @@ class TestRow(unittest.TestCase):
         for i,row in enumerate(play):
             for y,col in enumerate(row):
                 board.add_move((y,i),col)
-        
+
         self.assertEqual(board.player1_rows[0].score, 2000)
         self.assertEqual(board.player2_rows[0].score, 200)
         self.assertEqual(board.evaluate_state(1,(0,0),0), -1800)
@@ -83,7 +83,7 @@ class TestRow(unittest.TestCase):
         self.assertEqual(board.player1_rows[0].score, 1000)
         self.assertEqual(board.player2_rows[0].score, 2000)
         self.assertEqual(board.evaluate_state(1,(0,0),0), 1000)
-        
+
         board.add_move((5,3),2)
 
         self.assertEqual(board.player1_rows[0].score, 0)
@@ -99,4 +99,3 @@ class TestRow(unittest.TestCase):
         self.assertEqual(board.player1_rows[0].score, 2000)
         self.assertEqual(board.player2_rows[0].score, 200)
         self.assertEqual(board.evaluate_state(1,(0,0),0), -1800)
-

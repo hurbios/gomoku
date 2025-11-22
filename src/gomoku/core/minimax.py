@@ -1,7 +1,9 @@
-import time
+# import time
 from gomoku.core.helper import draw
 from gomoku.core.game_board import Board
-from gomoku.core.config import INSPECT_DEPTH, MAX_DEPTH, DEBUG
+from gomoku.core.config import INSPECT_DEPTH, MAX_DEPTH
+from gomoku.core.helper import debug_log
+
 
 WINNING_SCORES = {
     'player1': {-8,-6},
@@ -23,7 +25,7 @@ class Minimax:
             return last_move_score
             # return last_move_score, [last_move]
 
-        # if ((not is_player1 and last_move_score == WINNING_SCORES["player1"]) 
+        # if ((not is_player1 and last_move_score == WINNING_SCORES["player1"])
         #     or (is_player1 and last_move_score == WINNING_SCORES["player2"])):
         #     return last_move_score
         if last_move_score >= 10000 or last_move_score <= -10000:
@@ -39,48 +41,39 @@ class Minimax:
             # move_score, moves_inner = self.minimax(coordinates, depth-1, not is_player1, inspect_moves.union(new_ispect_moves))
             self.__board.remove_move(coordinates, get_player(is_player1))
             if is_player1:
-                if move_score < low_score:
-                    low_score = move_score
-                    # moves=moves_inner
-                    # moves.append(coordinates)
+                low_score = min(low_score, move_score)
             else:
-                if move_score > high_score:
-                    high_score = move_score
-                    # moves=moves_inner
-                    # moves.append(coordinates)
-        # if(move_score >= 1):
-        #     print("-"*depth, move_score, player)
+                high_score = max(high_score, move_score)
         return low_score if is_player1 else high_score
         # return move_score, moves
 
     def get_next_move(self, last_move:tuple[int,int]):
         moves = []
         high_score = -1000000
-        
+
+        move_score = 0
         move = last_move
         # for coordinates in [(2,2),(3,2),(4,2)]:
         for coordinates in self.__board.inspect_moves:
-            # if not move: # ensure that move is set 
+            # if not move: # ensure that move is set
             #     move = coordinates
             self.__board.add_move(coordinates, 2)
-            # print(coordinates, self.__board.get_player_move_result(coordinates,2), self.__board.evaluate_state_after_move(coordinates), flush=True)
             new_ispect_moves = self.__board.get_surrounding_free_coordinates(coordinates, INSPECT_DEPTH)
-            DEBUG and print(self.__board.inspect_moves, new_ispect_moves)
+            debug_log(f"{self.__board.inspect_moves} {new_ispect_moves}")
             # time.sleep(5)
             move_score = self.minimax(coordinates, MAX_DEPTH - 1, True, self.__board.inspect_moves.union(new_ispect_moves))
             # move_score, moves_inner = self.minimax(coordinates, MAX_DEPTH - 1, True, self.__board.inspect_moves.union(new_ispect_moves))
-            DEBUG and draw(self.__board)
+            draw(self.__board)
             self.__board.remove_move(coordinates, 2)
-            # print(coordinates, move_score, high_score, "curr score = ", self.__board.evaluate_state_after_move(coordinates), "player1: ", self.__board.get_player_pieces(1), "player2",self.__board.get_player_pieces(2))
             if move_score > high_score:
                 high_score = move_score
                 move = coordinates
                 # moves=moves_inner
             print(f"{coordinates} score: {move_score}")
-            DEBUG and print("player1: ", self.__board.get_player_pieces(1), flush=True)
-            DEBUG and print("player2: ", self.__board.get_player_pieces(2), flush=True)
-            
-        DEBUG and print("final: ", move, move_score, moves, "====================================", flush=True)
-        DEBUG and print("player1: ", self.__board.get_player_pieces(1), flush=True)
-        DEBUG and print("player2: ", self.__board.get_player_pieces(2), flush=True)
+            debug_log(f"player1: {self.__board.get_player_pieces(1)}")
+            debug_log(f"player2: {self.__board.get_player_pieces(2)}")
+
+        debug_log(f"final: {move} {move_score} {moves} ====================================")
+        debug_log(f"player1: {self.__board.get_player_pieces(1)}")
+        debug_log(f"player2: {self.__board.get_player_pieces(2)}")
         return move

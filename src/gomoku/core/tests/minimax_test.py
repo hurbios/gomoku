@@ -30,4 +30,3 @@ class TestMinimax(unittest.TestCase):
         for y,row in enumerate(play):
             for x,col in enumerate(row):
                 self.board.add_move((x,y),col)
-

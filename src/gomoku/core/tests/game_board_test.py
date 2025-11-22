@@ -50,7 +50,7 @@ class TestGameBoard(unittest.TestCase):
                     self.assertEqual((ok, has_won), (True,False), f"coordinates ({x},{y})")
                 else:
                     self.assertEqual((ok, has_won), (False,False), f"coordinates ({x},{y})")
-        self.assertEqual(self.board.add_move((4,2),1), (True,True), f"coordinates ({x},{y})")
+        self.assertEqual(self.board.add_move((4,2),1), (True,True), f"coordinates ({4},{2})")
 
     def test_add_move_diagonal_win(self):
         play = [
@@ -204,7 +204,7 @@ class TestGameBoard(unittest.TestCase):
                 self.board.add_move((y,i),col)
 
         self.assertEqual(self.board.evaluate_state_after_move((2,2)), -6)
-    
+
     def test_get_player_move_result(self):
         self.board = Board(6,6)
 
@@ -222,8 +222,8 @@ class TestGameBoard(unittest.TestCase):
 
         self.assertEqual(self.board.get_player_move_result((2,4),2), (2,1,2,2))
         self.assertEqual(self.board.get_player_move_result((2,3),1), (4,0,2,2))
-    
-    
+
+
     def test_add_move_row_amounts(self):
         self.board = Board(6,6)
 
@@ -259,15 +259,15 @@ class TestGameBoard(unittest.TestCase):
 
         self.assertEqual(len(self.board.player1_rows), 4)
         self.assertEqual(len(self.board.player2_rows), 6)
-        
+
         self.board.remove_move((1,2),1)
         self.assertEqual(len(self.board.player1_rows), 2)
         self.assertEqual(len(self.board.player2_rows), 6)
-        
+
         self.board.remove_move((4,3),2)
         self.assertEqual(len(self.board.player1_rows), 2)
         self.assertEqual(len(self.board.player2_rows), 5)
-        
+
         self.board.remove_move((5,3),2)
         self.assertEqual(len(self.board.player1_rows), 2)
         self.assertEqual(len(self.board.player2_rows), 4)
@@ -289,11 +289,11 @@ class TestGameBoard(unittest.TestCase):
 
         self.assertEqual(len(self.board.player1_rows), 1)
         self.assertEqual(len(self.board.player2_rows), 1)
-        
+
         self.board.remove_move((2,2),2)
         self.assertEqual(len(self.board.player1_rows), 1)
         self.assertEqual(len(self.board.player2_rows), 1)
-    
+
     def test_add_move_real1(self):
         board = Board(7,7)
 
@@ -312,7 +312,7 @@ class TestGameBoard(unittest.TestCase):
 
         self.assertEqual(len(board.player1_rows), 9)
         self.assertEqual(len(board.player2_rows), 14)
-        
+
         board.add_move((4,5),1)
         self.assertEqual(len(board.player1_rows), 9)
         self.assertEqual(len(board.player2_rows), 14)
@@ -335,13 +335,11 @@ class TestGameBoard(unittest.TestCase):
 
         self.assertEqual(board.get_player_pieces(1), [(0,1),(1,3)])
         self.assertEqual(board.get_player_pieces(2), [(0,0),(0,2),(0,4)])
-        
+
         board.add_move((0,3),2)
         self.assertEqual(board.get_player_pieces(1), [(0,1),(1,3)])
         self.assertEqual(board.get_player_pieces(2), [(0,0),(0,2),(0,3),(0,4)])
-        
+
         board.remove_move((0,3),2)
         self.assertEqual(board.get_player_pieces(1), [(0,1),(1,3)])
         self.assertEqual(board.get_player_pieces(2), [(0,0),(0,2),(0,4)])
-        
-
