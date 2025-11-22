@@ -1,6 +1,6 @@
 [![Lint and test](https://github.com/hurbios/gomoku/actions/workflows/pipeline.yml/badge.svg)](https://github.com/hurbios/gomoku/actions/workflows/pipeline.yml)[![codecov](https://codecov.io/github/hurbios/gomoku/graph/badge.svg?token=TGI5QXQLXL)](https://codecov.io/github/hurbios/gomoku)
 # gomoku
-This is Gomuku game with AI. The used AI algorithm is minimax enhanced with alpha-beta pruning.
+This is Gomoku game with AI. The used AI algorithm is minimax enhanced with alpha-beta pruning.
 
 The used language is Python
 

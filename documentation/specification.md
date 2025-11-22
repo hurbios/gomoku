@@ -1,7 +1,7 @@
 # Specification
-Creating Gomuku game with AI. The core of this project is AI algorithm with special attention to optimization of the algorithm. Some heuristic logic is created to assess the probability of next best move for optimization purpose. Iterative depth is used in minimax to keep the calculation time for next move tolerable. 
+Creating Gomoku game with AI. The core of this project is AI algorithm with special attention to optimization of the algorithm. Some heuristic logic is created to assess the probability of next best move for optimization purpose. Iterative depth is used in minimax to keep the calculation time for next move tolerable. 
 
-Gomuku will be played in 20 x 20 grid and 5 pieces in row wins. There are 2 players. Players are taking turns inserting one piece at a time trying to get 5 of their own pieces in a row horizontally, vertically or diagonally. Game continues until either one of the players gets 5 pieces in a row or the spaces run out in 20 x 20 grid. This equals 400 pieces total.
+Gomoku will be played in 20 x 20 grid and 5 pieces in row wins. There are 2 players. Players are taking turns inserting one piece at a time trying to get 5 of their own pieces in a row horizontally, vertically or diagonally. Game continues until either one of the players gets 5 pieces in a row or the spaces run out in 20 x 20 grid. This equals 400 pieces total.
 
 ## Programming language
 - Python (version 3.12)
