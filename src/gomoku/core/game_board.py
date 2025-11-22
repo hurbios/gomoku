@@ -53,7 +53,10 @@ class Board:
     def __get_player_rows_list(self, player:int)->list[Row]:
         return self.__player1_rows if player == 1 else self.__player2_rows
 
-    def __is_outside_of_game_area(self, move:tuple[int, int]):
+    def is_free_space(self, move:tuple[int, int]):
+        return not self.__moves[move[0]][move[1]]
+    
+    def is_outside_of_game_area(self, move:tuple[int, int]):
         return any(iter([
                 (self.__width <= move[0]),
                 (move[0] < 0),
@@ -109,7 +112,7 @@ class Board:
                     # DEBUG and print('touches')
                     if not direction_row_added:
                         # DEBUG and print('no dir row')
-                        new_row = Row([move, row.get_touching_building_move(move, direction)])
+                        new_row = Row([move, row.get_touching_building_move(move, direction)], self)
                         direction_row_added = new_row
                         rows_added.append(new_row)
                         self.__get_player_rows_list(player).append(new_row)
@@ -119,7 +122,7 @@ class Board:
         for row in rows_to_remove:
             self.__get_player_rows_list(player).remove(row)
         if len(rows_added) <= 0:
-            new_row = Row([move])
+            new_row = Row([move], self)
             self.__get_player_rows_list(player).append(new_row)
             rows_added.append(new_row)
 
@@ -133,7 +136,7 @@ class Board:
     # Returns tuple: (True if player piece was added, True if player wins)
     def add_move(self, move:tuple[int, int], player:int, update_inspect_moves:bool = False)->tuple[bool, bool]:
         # Check that the move is within the game area boundaries and valid player
-        if self.__is_outside_of_game_area(move) or player not in [1,2]:
+        if self.is_outside_of_game_area(move) or player not in [1,2]:
             return False, False
 
         # Check that no piece exists yet in the move coordinates
@@ -145,6 +148,14 @@ class Board:
 
         # Add move to players pieces and on game board
         self.__moves[move[0]][move[1]] = player
+
+        for row in self.__player1_rows:
+            if move in row.surrounding_moves:
+                row.refresh_potential()
+        
+        for row in self.__player2_rows:
+            if move in row.surrounding_moves:
+                row.refresh_potential()
 
         added_rows = self.__add_building_move_to_rows(move, player)
         DEBUG and print('added_rows', len(added_rows[len(added_rows)-1]), flush=True)
@@ -179,6 +190,13 @@ class Board:
         self.__moves[move[0]][move[1]] = 0
         self.__remove_move_from_rows(move, player)
         # self.player1_rows #TODO: remove líne
+        for row in self.__player1_rows:
+            if move in row.surrounding_moves:
+                row.refresh_potential()
+        
+        for row in self.__player2_rows:
+            if move in row.surrounding_moves:
+                row.refresh_potential()
         return
 
     def get_player_pieces(self, player:int):
@@ -205,7 +223,7 @@ class Board:
 
         free_coordinates = set()
         for surrounding_move in surrounding_moves():
-            if not self.__is_outside_of_game_area(surrounding_move):
+            if not self.is_outside_of_game_area(surrounding_move):
                 if not self.__moves[surrounding_move[0]][surrounding_move[1]]:
                     free_coordinates.add(surrounding_move)
 
@@ -215,6 +233,19 @@ class Board:
     ############################
     ### Move evaluations #######
     ############################
+
+    def evaluate_state(self, player, move, depth):
+        score = 0
+        for row in self.player1_rows:
+            score -= row.score
+        for row in self.player2_rows:
+            score += row.score
+        # DEBUG and print(f"score after player {player} move: {score}")
+        # print(f"depth {depth} score after player {player} move {move}: {score}", flush=True)
+        return score
+
+    ### Below not currently used
+
     # calculate touches to actually block!! 
     def get_player_move_result(self, move, player):
         count0=0
@@ -229,10 +260,10 @@ class Board:
                 # print('rows[0]')
                 # print(rows[0])
                 count0 = len(rows[0])
-                next_spaces_count_0 = sum(1 for n in rows[0].next_spaces() if not self.__is_outside_of_game_area(n) and not self.__moves[n[0]][n[1]])
+                next_spaces_count_0 = sum(1 for n in rows[0].next_spaces() if not self.is_outside_of_game_area(n) and not self.__moves[n[0]][n[1]])
                 if len(rows) > 1:
                     count1 = len(rows[1])
-                    next_spaces_count_1 = sum(1 for n in rows[1].next_spaces() if not self.__is_outside_of_game_area(n) and not self.__moves[n[0]][n[1]])
+                    next_spaces_count_1 = sum(1 for n in rows[1].next_spaces() if not self.is_outside_of_game_area(n) and not self.__moves[n[0]][n[1]])
         # else:
         #     other_players_rows_in_direction = self.__get_players_surrounding_rows_in_directions(move, 2 if player == 1 else 1)
         #     dir_rows = {}
@@ -241,7 +272,7 @@ class Board:
         #         if row_direction not in dir_rows:
         #             dir_rows[row_direction] = [0,0] # len, empty space
         #         dir_rows[row_direction][0] += len(row)
-        #         dir_rows[row_direction][1] += row.next_space_count(move, row_direction, self.__is_outside_of_game_area)
+        #         dir_rows[row_direction][1] += row.next_space_count(move, row_direction, self.is_outside_of_game_area)
             
         #     for val in dir_rows.values():
         #         if val[0] > count0:

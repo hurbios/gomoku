@@ -2,10 +2,13 @@ from gomoku.core.directions import DIRECTIONS
 from gomoku.core.config import DEBUG
 
 class Row:
-    def __init__(self, moves):
+    def __init__(self, moves, board):
         self._moves = moves #TODO: performancew improve to set
         self._direction = None
         self._ends = None
+        self.__potential = 0
+        self.__board = board
+        self.__surrounding_spaces = set()
 
         if len(self._moves) > 1:
             self._direction = self.get_direction(moves[0], moves[1])
@@ -22,6 +25,14 @@ class Row:
     @property
     def ends(self):
         return self._ends
+    
+    @property
+    def score(self):
+        return self.__potential
+    
+    @property
+    def surrounding_moves(self):
+        return self.__surrounding_spaces
 
     def __len__(self):
         return len(self._moves)
@@ -36,6 +47,23 @@ class Row:
             self._ends = None
         return
 
+    #TODO: simplified potential calculation for testing. Improve later
+    def __refresh_row_potential(self):
+        free_spaces = 0
+        for space in self.next_spaces():
+            if not self.__board.is_outside_of_game_area(space):
+                self.__surrounding_spaces.add(space)
+                if self.__board.is_free_space(space):
+                    free_spaces += 1
+        if len(self) <= 1:
+            score = min(2, free_spaces)
+        else:
+            score = 10**len(self) * min(2, free_spaces)
+            # if len(self) < 5 and free_spaces == 0:
+            if len(self) > 5:
+                score = 10**len(self)
+        self.__potential = score
+
     def __refresh_row(self):
         if len(self._moves) > 1:
             DEBUG and print(self._moves, flush=True)
@@ -43,7 +71,11 @@ class Row:
         self.__refresh_row_ends()
         if len(self) <= 1:
             self._direction = None
+        self.__refresh_row_potential()
         return
+
+    def refresh_potential(self):
+        self.__refresh_row_potential()
 
     # checks the direction of the move compared to provided comparison move
     def get_direction(self, move, comparison_move=None):
@@ -84,7 +116,7 @@ class Row:
         if move != self._ends[0] and move != self._ends[1]:
             split_at = self._moves.index(move)
             DEBUG and print(f"split row {self._moves} to {self._moves[split_at+1:]} and {self._moves[:split_at]}, ends: {self._ends}, move: {move}")
-            new_row = Row(self._moves[split_at+1:])
+            new_row = Row(self._moves[split_at+1:], self.__board)
             self._moves = self._moves[:split_at]
             self.__refresh_row()
             return new_row
