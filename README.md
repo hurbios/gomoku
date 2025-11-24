@@ -7,7 +7,7 @@ The used language is Python
 This is a learning project with main focus on the algorithm.
 
 ## How to install
-(This app requires Poetry and Python 3.12)
+(This app requires Poetry version >=2.0.0 and Python 3.12)
 - Run `poetry install`
 
 ## How to run
@@ -31,5 +31,6 @@ Options for testing and coverage:
     - (This might take a few seconds to output something)
 - There is a Github Actions workflow that runs the pylint (click the badge to see results)
 
-## About Python version
+## About Python and Poetry version
 - Used python version is set in Poetry to be ~3.12 because pygame does not support newer versions. Coverage would require Python 3.10+ but this app has not been tested with other than version 3.12 so limiting the version to 3.12)
+- The poetry version needs to be >=2.0.0 because the project is using new pyproject.toml style. More information about the change [here](https://python-poetry.org/blog/announcing-poetry-2.0.0/#supporting-the-project-section-in-pyprojecttoml-pep-621).
