@@ -30,6 +30,7 @@ Options for testing and coverage:
 - The pylint can be run with: `poetry run pylint src`
     - (This might take a few seconds to output something)
 - There is a Github Actions workflow that runs the pylint (click the badge to see results)
+- (for vscode pylint `"pylint.args": ["--disable=E0015"]` can be added to `Pylint: Args` setting to remove linting error for first line if pylint extension is used)
 
 ## About Python and Poetry version
 - Used python version is set in Poetry to be ~3.12 because pygame does not support newer versions. Coverage would require Python 3.10+ but this app has not been tested with other than version 3.12 so limiting the version to 3.12)
