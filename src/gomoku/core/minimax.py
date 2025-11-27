@@ -18,9 +18,6 @@ class Minimax:
         last_move_score = self.__board.evaluate_state(get_player(not is_player1), last_move, depth)
         next_moves = last_moves + [last_move]
         if depth <= 0:
-            # print('----')
-            # print(inspect_moves)
-            # print (next_moves, ' - ', last_move_score)
             return last_move_score, next_moves
 
         if last_move_score >= 10000000 or last_move_score <= -10000000:
@@ -65,7 +62,6 @@ class Minimax:
             new_ispect_moves.discard(coordinates)
             debug_log(f"{self.__board.inspect_moves} {new_ispect_moves}")
             move_score, next_moves = self.minimax(coordinates, MAX_DEPTH - 1, True, new_ispect_moves, [], SMALL, LARGE )
-            # time.sleep(5)
             draw(self.__board)
             self.__board.remove_move(coordinates, 2)
             if move_score > high_score:
@@ -73,10 +69,4 @@ class Minimax:
                 move = coordinates
             print(f"{coordinates} score: {move_score}")
             print(next_moves)
-            debug_log(f"player1: {self.__board.get_player_pieces(1)}")
-            debug_log(f"player2: {self.__board.get_player_pieces(2)}")
-
-        debug_log(f"final: {move} {move_score} {moves} ====================================")
-        debug_log(f"player1: {self.__board.get_player_pieces(1)}")
-        debug_log(f"player2: {self.__board.get_player_pieces(2)}")
         return move
