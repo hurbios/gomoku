@@ -198,10 +198,10 @@ class Board:
                 row.refresh_potential()
 
     def get_player_pieces(self, player:int):
-        moves = []
+        moves = set()
         player_rows = self.__player1_rows if player == 1 else self.__player2_rows
         for row in player_rows:
-            moves += row.moves
+            moves.update(row.moves)
         return moves
 
     def reset(self):
