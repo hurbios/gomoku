@@ -99,26 +99,20 @@ class Board:
             direction_row_added = None
             for row in player_rows[direction]:
                 if row.row_relation(move) == 'builds': #TODO improve by adding direction to relation check
-                    # DEBUG and print('builds')
                     if not direction_row_added:
-                        # DEBUG and print('no dir row')
                         direction_row_added = row
                         row.add(move)
                         rows_added.append(row)
                     else:
-                        # DEBUG and print('yes dir row')
                         direction_row_added.join_row(move, row) # join connected same direction rows
                         rows_to_remove.append(row)
                 elif row.row_relation(move) == 'touches': # create new row for touching but not building rows
-                    # DEBUG and print('touches')
                     if not direction_row_added:
-                        # DEBUG and print('no dir row')
                         new_row = Row([move, row.get_touching_building_move(move, direction)], self)
                         direction_row_added = new_row
                         rows_added.append(new_row)
                         self.__get_player_rows_list(player).append(new_row)
                     else:
-                        # DEBUG and print('yes dir row')
                         direction_row_added.add(row.get_touching_building_move(move, direction)) # join connected same direction rows
         for row in rows_to_remove:
             self.__get_player_rows_list(player).remove(row)

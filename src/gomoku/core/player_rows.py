@@ -57,7 +57,7 @@ class Row:
         if len(self) <= 1:
             score = min(2, free_spaces)
         else:
-            score = 10**len(self) * min(2, free_spaces)
+            score = 10**len(self) * free_spaces
             if len(self) >= 5:
                 score = 10000000
         self.__potential = score
