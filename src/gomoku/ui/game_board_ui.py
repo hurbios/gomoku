@@ -78,7 +78,7 @@ class BoardUI:
                 (BLOCK_OFFSET + piece[0]*BLOCK_SIZE, BLOCK_OFFSET+piece[1]*BLOCK_SIZE),
                 PIECE_SIZE
             )
-    
+
     # Draws latest move indicater
     def draw_latest_move_indicator(self):
         if self.last_move:

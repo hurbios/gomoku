@@ -1,7 +1,7 @@
 import time
 from gomoku.core.helper import draw
 from gomoku.core.game_board import Board
-from gomoku.core.config import INSPECT_DEPTH, MAX_DEPTH, CUTOFFTIME
+from gomoku.core.config import INSPECT_DEPTH, CUTOFFTIME
 from gomoku.core.helper import debug_log
 
 SMALL = -10000000
@@ -22,6 +22,7 @@ class Minimax:
     def __init__(self, board:Board):
         self.__board = board
         self.__start_time = time.time()
+        self.__current_max_depth = 1
 
     def __generate_inspect_moves(self, starting_moves, inspect_moves, current_depth):
         if len(starting_moves) > (self.__current_max_depth - current_depth):
@@ -31,8 +32,7 @@ class Minimax:
                 if move is not starting_moves[self.__current_max_depth - current_depth]:
                     yield move
         else:
-            for move in inspect_moves:
-                yield move
+            yield from inspect_moves
 
     def minimax(self, last_move:tuple[int,int], depth:int, is_player1:bool, inspect_moves:set, last_moves, alpha, beta, starting_moves):
         last_move_score = self.__board.evaluate_state(get_player(not is_player1), last_move, depth)
@@ -53,7 +53,11 @@ class Minimax:
             new_ispect_moves = self.__board.get_surrounding_free_coordinates(last_move, INSPECT_DEPTH)
             new_ispect_moves = new_ispect_moves.union(new_ispect_moves)
             new_ispect_moves.discard(coordinates)
-            move_score, new_moves, time_exceeded = self.minimax(coordinates, depth-1, not is_player1, new_ispect_moves, next_moves, alpha, beta, starting_moves)
+            (
+                move_score,
+                new_moves,
+                time_exceeded
+            ) = self.minimax(coordinates, depth-1, not is_player1, new_ispect_moves, next_moves, alpha, beta, starting_moves)
             self.__board.remove_move(coordinates, get_player(is_player1))
             if is_player1:
                 if move_score < low_score:
@@ -73,7 +77,7 @@ class Minimax:
                 break
         return low_score if is_player1 else high_score, return_next_moves, time_exceeded
 
-    def minimax_iterative_depth(self, last_move:tuple[int,int], starting_moves:tuple[int,int]):
+    def minimax_iterative_depth(self, starting_moves:tuple[int,int]):
         move = None
         high_score = SMALL
         time_exceeded = False
@@ -87,7 +91,11 @@ class Minimax:
             new_ispect_moves = self.__board.inspect_moves.union(new_ispect_moves)
             new_ispect_moves.discard(coordinates)
             debug_log(f"{self.__board.inspect_moves} {new_ispect_moves}")
-            move_score, next_moves, time_exceeded = self.minimax(coordinates, self.__current_max_depth - 1, True, new_ispect_moves, [], SMALL, LARGE, starting_moves)
+            (
+                move_score,
+                next_moves,
+                time_exceeded
+            ) = self.minimax(coordinates, self.__current_max_depth - 1, True, new_ispect_moves, [], SMALL, LARGE, starting_moves)
             draw(self.__board)
             self.__board.remove_move(coordinates, 2)
             if move_score > high_score:
@@ -109,11 +117,10 @@ class Minimax:
         starting_moves = []
         while not time_exceeded and last_move:
             print(f"depth: {self.__current_max_depth}")
-            move, starting_moves, time_exceeded = self.minimax_iterative_depth(last_move,  starting_moves)
+            move, starting_moves, time_exceeded = self.minimax_iterative_depth(starting_moves)
             if not time_exceeded:
                 ret_move = move
                 if not ret_move:
                     break
             self.__current_max_depth+=1
         return ret_move or (9,9)
-
