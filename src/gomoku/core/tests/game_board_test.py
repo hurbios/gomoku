@@ -10,8 +10,8 @@ class TestGameBoard(unittest.TestCase):
 
     def test_board_initialization(self):
         self.assertEqual(self.board.size(), (20,20))
-        self.assertEqual(self.board.get_player_pieces(1), [])
-        self.assertEqual(self.board.get_player_pieces(2), [])
+        self.assertEqual(self.board.get_player_pieces(1), set())
+        self.assertEqual(self.board.get_player_pieces(2), set())
 
     def test_add_move_horizontal_win(self):
         play = [
@@ -153,8 +153,8 @@ class TestGameBoard(unittest.TestCase):
             for y,col in enumerate(row):
                 self.board.add_move((y,i),col)
 
-        self.assertEqual(self.board.get_player_pieces(1), [(2,0),(2,1),(2,2),(2,3),(2,4)])
-        self.assertEqual(self.board.get_player_pieces(2), [(3,0),(3,1),(3,2),(3,3),(1,4)])
+        self.assertEqual(self.board.get_player_pieces(1), {(2,0),(2,1),(2,2),(2,3),(2,4)})
+        self.assertEqual(self.board.get_player_pieces(2), {(3,0),(3,1),(3,2),(3,3),(1,4)})
 
     def test_reset(self):
         ok, has_won = self.board.add_move((1,1),1)
@@ -162,11 +162,11 @@ class TestGameBoard(unittest.TestCase):
 
         ok, has_won = self.board.add_move((1,1),1)
         self.assertEqual((ok, has_won), (False,False))
-        self.assertEqual(self.board.get_player_pieces(1), [(1,1)])
+        self.assertEqual(self.board.get_player_pieces(1), {(1,1)})
 
         self.board.reset()
 
-        self.assertEqual(self.board.get_player_pieces(1), [])
+        self.assertEqual(self.board.get_player_pieces(1), set())
         ok, has_won = self.board.add_move((1,1),1)
         self.assertEqual((ok, has_won), (True,False))
 
@@ -279,13 +279,13 @@ class TestGameBoard(unittest.TestCase):
             for y,col in enumerate(row):
                 board.add_move((y,i),col)
 
-        self.assertEqual(board.get_player_pieces(1), [(0,1),(1,3)])
-        self.assertEqual(board.get_player_pieces(2), [(0,0),(0,2),(0,4)])
+        self.assertEqual(board.get_player_pieces(1), {(0,1),(1,3)})
+        self.assertEqual(board.get_player_pieces(2), {(0,0),(0,2),(0,4)})
 
         board.add_move((0,3),2)
-        self.assertEqual(board.get_player_pieces(1), [(0,1),(1,3)])
-        self.assertEqual(board.get_player_pieces(2), [(0,0),(0,2),(0,3),(0,4)])
+        self.assertEqual(board.get_player_pieces(1), {(0,1),(1,3)})
+        self.assertEqual(board.get_player_pieces(2), {(0,0),(0,2),(0,3),(0,4)})
 
         board.remove_move((0,3),2)
-        self.assertEqual(board.get_player_pieces(1), [(0,1),(1,3)])
-        self.assertEqual(board.get_player_pieces(2), [(0,0),(0,2),(0,4)])
+        self.assertEqual(board.get_player_pieces(1), {(0,1),(1,3)})
+        self.assertEqual(board.get_player_pieces(2), {(0,0),(0,2),(0,4)})
