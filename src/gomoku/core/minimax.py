@@ -115,5 +115,5 @@ class Minimax:
                 if not ret_move:
                     break
             self.__current_max_depth+=1
-        return ret_move or (10,10)
+        return ret_move or (9,9)
 

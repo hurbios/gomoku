@@ -112,6 +112,7 @@ class BoardUI:
             self.draw_game_win()
             time.sleep(2)
             self.board.reset()
+            self.last_move = None
         if can_move and not wins:
             self.player = 2 if self.player == 1 else 1
 
