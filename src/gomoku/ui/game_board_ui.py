@@ -13,6 +13,7 @@ from gomoku.core.helper import draw
 # Color of the player pieces (r,g,b)
 PLAYER1_COLOR = (0, 0, 0)
 PLAYER2_COLOR = (255, 255, 255)
+MARKER_COLOR = (127, 0, 0)
 # Color of the game area (r,g,b)
 BACKGROUND_COLOR = (168, 127, 127)
 GRID_COLOR = (64, 64, 64)
@@ -28,6 +29,7 @@ BLOCKS_PER_SIDE = 20
 
 BLOCK_OFFSET = BLOCK_SIZE // 2                  # Offset for center of the block
 PIECE_SIZE = BLOCK_SIZE // 2 - GRID_SIZE * 2    # Player piece size in pixels.
+MARKER_SIZE = PIECE_SIZE + 2                   # Marker size in pixels.
 
 AREA_WIDTH = BLOCK_SIZE*BLOCKS_PER_SIDE          # Width of the game area
 AREA_HEIGHT = BLOCK_SIZE*BLOCKS_PER_SIDE         # Height of the game area
@@ -44,6 +46,7 @@ class BoardUI:
 
         self.board = board
         self.minimax = minimax
+        self.last_move = None
 
     # Draws background and grid
     def draw_game_area(self):
@@ -75,12 +78,23 @@ class BoardUI:
                 (BLOCK_OFFSET + piece[0]*BLOCK_SIZE, BLOCK_OFFSET+piece[1]*BLOCK_SIZE),
                 PIECE_SIZE
             )
+    
+    # Draws latest move indicater
+    def draw_latest_move_indicator(self):
+        if self.last_move:
+            pygame.draw.circle(
+                self.display,
+                MARKER_COLOR,
+                (BLOCK_OFFSET + self.last_move[0]*BLOCK_SIZE, BLOCK_OFFSET+self.last_move[1]*BLOCK_SIZE),
+                MARKER_SIZE
+            )
 
     # Draws the game area, player pieces draws additional if some additional drawing is definer
     def draw_game(self,additional_draw=None):
         self.draw_game_area()
         if additional_draw:
             additional_draw(self)
+        self.draw_latest_move_indicator()
         self.draw_player_pieces(self.board.get_player_pieces(1), PLAYER1_COLOR)
         self.draw_player_pieces(self.board.get_player_pieces(2), PLAYER2_COLOR)
         pygame.display.flip()
@@ -109,6 +123,8 @@ class BoardUI:
                 time.sleep(0.5)
                 new_piece = self.minimax.get_next_move(prev_piece)
                 can_move, wins = self.board.add_move(new_piece, self.player, update_inspect_moves=True) if new_piece else (None, None)
+                if can_move:
+                    self.last_move = new_piece
                 time.sleep(0.1)
                 print("==============================================================================")
                 print("player1: ", self.board.get_player_pieces(1), flush=True)
@@ -122,6 +138,8 @@ class BoardUI:
                         new_piece = (event.pos[0]//BLOCK_SIZE, event.pos[1]//BLOCK_SIZE)
                         prev_piece = new_piece
                         can_move, wins = self.board.add_move(new_piece, self.player, update_inspect_moves=True)
+                        if can_move:
+                            self.last_move = new_piece
                         self.actions_after_player_move(can_move, wins)
                     if event.type == pygame.QUIT:
                         sys.exit()
