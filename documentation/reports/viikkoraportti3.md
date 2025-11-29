@@ -1,3 +1,4 @@
+# Viikkoraportti - Viikko 3
 Tällä viikolla olen dokumentoinut ohjelman toiminnallisuutta. Lisäsin ohjelman ylimalkaisen flown ([implementation dokumenttiin](../implementation.md)). Lisäksi lisäsin samaiseen dokumenttiin hahmotelmaa heuristiikasta. Kyseinen heuristiikka toimii hyvin seuraavan siirron prioriteettina ja tämän avulla voi jo pelata peliä suhteellisen hyvin (peli ajoittain rikki uuden kehityksen takia, mutta commit 99156dd sisältää toimivan version). Opin että tämä ei kuitenkaan käy sellaisenaan minimaxin kanssa, mutta antaa hyvää osviittaa ja voi toimia pohjana minimaxissa käytettävään heuristiikkaan.
 
 Minimaxin kehitys on alkanut. Tässä kohtasin pieniä haasteita seuraavan siirron evaluaation kohdalla kun tuntui ettei logiikka oikein toiminut minimaxin kanssa. Itsessään minimax algoritmi pitäisi olla pääpiirteittäin hyvällä tolalla, mutta vielä jokin estää sitä toimimasta.

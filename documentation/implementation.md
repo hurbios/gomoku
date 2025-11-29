@@ -1,28 +1,146 @@
 # Implementation document
-(Draft)
+This gomoku app is using Minimax algorithm with alpha-beta pruning enhanced with iterative deepening. 
+
+## Algorithms
+### Minimax
+Minimax is the algorithm used to get the best possible next move for the AI. The algorithm is going through all possible moves to a certain depth where the current game status is evaluated. Evaluation is explained in later section. Every other layer is maximizing and every other layer is minimizing. So other player seeks to get as big evaluation score as possible and the other player seeks to get the smallest score as possible. Minimax is turn based algorithm where two players take turns and play optimally. The deepest layer is the evaluation layer. So the algorithm first checks all the possible moves that can be done and then for each of those moves the algorithm checks all possible next moves and so on. This continues until predefined depth, one of the players have winning move or game board is out of moves. 
+
+In the example below the bottom layer is the evaluation layer. This is where the the current game status is evaluated after the last move is done. Then layer above it is maximizing layer. This layer takes the biggest of the possible score values of the evaluation layer related to the move. Next layer is minimizing so it will take the smallest value of the maximizing layer related to this minimizing layers possible moves. The top layer is maximizing layer which will select what is the best possible move to do next. So the move that is selected is the best possible move that the player can select when both players play optimally.
+
+```mermaid
+---
+title: Minimax
+---
+flowchart BT
+    subgraph maximizing layer
+    1["5"]:::maxi
+    end
+    subgraph minimizing layer
+    2["5"]:::mini
+    9["2"]:::mini
+    end
+    subgraph maximizing layer
+    6["6"]:::maxi
+    3["5"]:::maxi
+    10["3"]:::maxi
+    13["2"]:::maxi
+    end
+    subgraph evaluation layer
+    4["5"]:::mini
+    5["3"]:::mini
+    7["4"]:::mini
+    8["6"]:::mini
+    11["3"]:::mini
+    12["2"]:::mini
+    14["2"]:::mini
+    15["1"]:::mini
+    end
+    2["5"]:::mini ==> 1["5"]:::maxi
+    3["5"]:::maxi ==> 2
+    4["5"]:::mini ==> 3
+    5["3"]:::mini --> 3
+    6["6"]:::maxi --> 2
+    7["4"]:::mini --> 6
+    8["6"]:::mini ==> 6
+    9["2"]:::mini --> 1
+    10["3"]:::maxi --> 9
+    11["3"]:::mini ==> 10
+    12["2"]:::mini --> 10
+    13["2"]:::maxi ==> 9
+    14["2"]:::mini ==> 13
+    15["1"]:::mini --> 13
+    
+    classDef maxi fill:#fff
+    classDef mini fill:#000
+    classDef current fill:#f00
+```
+Because minimax is going through all possible moves, the amount of moves checked increases exponentially at every layer. Minimax has time complexity O($b^d)$. With gomoku game the amount of possible moves would be all free slots in the game board. To reduce the required spaces to calculate and make the program faster the next possible moves to investigate are limited to two closest moves from the existing moves. So after <span style="color:green">first move</span> there are 24 moves to inspect and after <span style="color:blue">second move</span> there are 39 moves to inspect. This means that at depth of 2 there are 24*39=936 moves to check. It can be easily deducted that at depth of 5 there can easily be more than million moves to inspect. This becomes computationally intensive fast. If we put 24 as branch (b) and depth (d) of 5 to equation O($b^d)$ we get $24^5=~7,962,624$. The player would need to wait for this calculation after every turn and this could take quite a lot of time. The algorithm becomes better the deeper it calculates the layers so this needs to be enhanced. This has been enhanced in this project with alpha-beta pruning.
+```mermaid
+block
+  columns 7
+  1A[" "] 1B[" "] 1C[" "] 1D[" "] 1E[" "] 1F[" "] 1G[" "]
+  2A[" "] 2B[" "] 2C[" "] 2D[" "] 2E[" "] 2F[" "] 2G[" "]
+  3A[" "] 3B[" "] 3C[" "] 3D[" "] 3E[" "] 3F[" "] 3G[" "]
+  4A[" "] 4B[" "] 4C[" "] 4D[" "] 4E[" "] 4F[" "] 4G[" "]
+  5A[" "] 5B[" "] 5C[" "] 5D[" "] 5E[" "] 5F[" "] 5G[" "]
+  6A[" "] 6B[" "] 6C[" "] 6D[" "] 6E[" "] 6F[" "] 6G[" "]
+  7A[" "] 7B[" "] 7C[" "] 7D[" "] 7E[" "] 7F[" "] 7G[" "]
+
+  classDef line fill:#00F,stroke:#333;
+  classDef first fill:#0F0,stroke:#333;
+  classDef second fill:#696,stroke:#333;
+  classDef third fill:#669,stroke:#333;
+
+  class 5E line
+  class 3C first
+  class 2C,2D,2B,3B,4B,4C,3D,1A,1B,1C,1D,1E,2A,3A,4A,5A,5B,5C,5D,2E,3E,4E,4D second
+  class 6C,6D,6E,6F,3F,4F,5F,7C,7D,7E,7F,7G,3G,4G,5G,6G third
+```
+
+### Alpha-beta pruning
+With alpha-beta pruning the moves are removed from the minimax layers when it can be deducted that the value will not be used. For example, when on the left hand side minimizing layer 5 has been calculated from its left hand side one of the possible values, it is known that 5 is maximum value that will be picked at that layer for the value. When the branch to the right of the minimizing layer move with max value 5 is evaluated the first value is higher than 5. This means that the maximizing layer will have at least 6. This is bigger than the value in the minimizing layer so no need to evaluate the last value in that branch because the value would not be picked anyway. So the <span style="color:#700">value</span> is then pruned. The same logic is done for the right hand side of the branches.
+
+```mermaid
+---
+title: Minimax enhanced with alpha-beta pruning
+---
+flowchart BT
+    subgraph maximizing layer
+    1["5"]:::maxi
+    end
+    subgraph minimizing layer
+    2["5"]:::mini
+    9["2"]:::mini
+    end
+    subgraph maximizing layer
+    6["6"]:::maxi
+    3["5"]:::maxi
+    10["3"]:::maxi
+    13["2"]:::maxi
+    end
+    subgraph evaluation layer
+    4["5"]:::mini
+    5["3"]:::mini
+    7["4"]:::mini
+    8["6"]:::mini
+    11["3"]:::mini
+    12["2"]:::mini
+    14["2"]:::mini
+    15["1"]:::mini
+    end
+    2["5"]:::mini ==> 1["5"]:::maxi
+    3["5"]:::maxi ==> 2
+    4["5"]:::mini ==> 3
+    5["3"]:::mini --> 3
+    6["6"]:::maxi --> 2
+    8["6"]:::mini ==> 6
+    7[" "]:::red --> 6
+    9["3"]:::mini --> 1
+    10["3"]:::maxi ==> 9
+    11["3"]:::mini ==> 10
+    12["2"]:::mini --> 10
+    13[" "]:::red --> 9
+    14[" "]:::red --> 13
+    15[" "]:::red --> 13
+    
+    classDef maxi fill:#fff
+    classDef mini fill:#000
+    classDef red fill:#700
+    classDef current fill:#f00
+```
+This minimax enhanced with alpha-beta pruning has time complexity of O($\sqrt{b^d}$) at best case. But how well the pruning actually works depends on which moves are selected first to be evaluated. If the values are selected in a way that pruning will not occur at all when the order of evaluation of the moves are selected from worst to best. So to improve the performance of the alpha-beta pruning the evaluation order of the moves needs to be defined in a way that hopefully the potentially best option would be the first one. To achieve this, there needs to be a way to make some estimate which move would be the best.
+
+### Iterative deepening
+Iterative deepening is used to estimate the best move for next layer. The iterative layer starts from one layer and evaluates that. Then the best evaluation is taken as the first move to be tested in the next iteration with one layer deeper. The best option is taken from that layer for the next iteration and so on. This will continue until predefined time runs out.
 
 ## Move Evaluation
-
-<table>
-    <hr><th>number</th><th>description</th><th>points</th></hr>
-    <tr><td>0.</td><td>LOST - other has 5th in row </td><td>-8</td></tr>
-    <tr><td>1.</td><td>ATTACK - add 5th for the row</td><td>8</td></tr>
-    <tr><td>2.</td><td>BLOCK - block 5th in a row with one sided empty space</td><td>-7</td></tr>
-    <tr><td>3.</td><td>ATTACK - add 4th in a row both sides empty space</td><td>7</td></tr>
-    <tr><td>3.</td><td>ATTACK - add 4th in a row (one or more empty space)</td><td>6</td></tr>
-    <tr><td>4.</td><td>BLOCK - block 4th in a row with both sides empty space</td><td>-6</td></tr>
-    <tr><td>5.</td><td>ATTACK - add center for dual 3rd in a row with empty spaces around (4) </td><td>5</td></tr>
-    <tr><td>6.</td><td>BLOCK - block center for dual 3rd in a row with empty spaces around (4)</td><td>-5</td></tr>
-    <tr><td>7.</td><td>ATTACK - add 3rd in a row with empty spaces around</td><td>4</td></tr>
-    <tr><td>8.</td><td>BLOCK - block center for dual 3rd in a row with 3 or less empty spaces around</td><td>-4</td></tr>
-    <tr><td>9.</td><td>ATTACK - add 3rd in a row with one side empty space</td><td>3</td></tr>
-    <tr><td>10.</td><td>BLOCK - block 4th in a row with one side empty space</td><td>-3</td></tr>
-    <tr><td>11.</td><td>BLOCK - block 3rd in a row with empty spaces around</td><td>-2</td></tr>
-    <tr><td>12.</td><td>ATTACK - add 2nd in a row with empty spaces around</td><td>2</td></tr>
-    <tr><td>13.</td><td>BLOCK - block 3rd in a row with one side empty spaces around</td><td>-1</td></tr>
-    <tr><td>14.</td><td>BLOCK - block 2nd in a row with empty spaces around (4)</td><td>0</td></tr>
-    <tr><td>15.</td><td>ATTACK - add 1st in a row with as many empty spaces around as possible</td><td>1</td></tr>
-</table>
+Current move evaluation is as follows:
+- Row scores of the first player are summed together and the other players row score sum is reduced from the first players sum giving the score of the current game status after the latest move
+- The row evaluation is done with following formula:
+    - Free places in the direction of the row (one point max for both sides) times 10 to the power of the row size ($freeSpaces*10^{rowSize}$)
+    - This will be improved to account free spaces in between the 5 in a row row
+    - 5 in a row is maximum score (10000000)
+    - row without possiblity to become 5 in a row has score of 0
 
 ## Program flow
 ```mermaid
@@ -70,3 +188,11 @@ stateDiagram-v2
     }
     Minimax --> checkWin2: Return AIs next move
 ```
+
+## LLM usage
+No LLM was used in this project except for some google searches automatic AI overview that could not be easily avoided.
+
+## Sources
+- [Gomoku](https://en.wikipedia.org/wiki/Gomoku)
+- [Minimax](https://en.wikipedia.org/wiki/Minimax)
+- [Alpha-beta pruning](https://en.wikipedia.org/wiki/Alpha%E2%80%93beta_pruning)
