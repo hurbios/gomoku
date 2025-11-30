@@ -58,7 +58,7 @@ class TestRow(unittest.TestCase):
         row = Row([(1,1),(1,2),(1,3)], self.board)
         self.assertEqual(row.next_space_count((1,4), 'vertical', lambda x: x[0] < 0 or x[1] < 0), 1)
         self.assertEqual(row.next_space_count((1,4), 'vertical', lambda x: x[0] < 1 or x[1] < 1), 0)
-        self.assertEqual(row.score, 2000)
+        self.assertEqual(row.score, 50000000)
 
 
     def test_row_score(self):
@@ -77,31 +77,31 @@ class TestRow(unittest.TestCase):
             for y,col in enumerate(row):
                 board.add_move((y,i),col)
 
-        self.assertEqual(board.player1_rows[0].score, 2000)
+        self.assertEqual(board.player1_rows[0].score, 50000000)
         self.assertEqual(board.player2_rows[0].score, 200)
-        self.assertEqual(board.evaluate_state(1,(0,0),0), -1800)
+        self.assertEqual(board.evaluate_state(1,(0,0),0), -49999800)
 
         board.add_move((1,3),2)
 
         self.assertEqual(board.player1_rows[0].score, 1000)
-        self.assertEqual(board.player2_rows[0].score, 2000)
-        self.assertEqual(board.evaluate_state(1,(0,0),0), 1000)
+        self.assertEqual(board.player2_rows[0].score, 50000000)
+        self.assertEqual(board.evaluate_state(1,(0,0),0), 49999000)
 
         board.add_move((5,3),2)
 
         self.assertEqual(board.player1_rows[0].score, 0)
-        self.assertEqual(board.player2_rows[0].score, 2000)
-        self.assertEqual(board.evaluate_state(1,(0,0),0), 2000)
+        self.assertEqual(board.player2_rows[0].score, 50000000)
+        self.assertEqual(board.evaluate_state(1,(0,0),0), 50000000)
 
         board.remove_move((5,3),2)
         self.assertEqual(board.player1_rows[0].score, 1000)
-        self.assertEqual(board.player2_rows[0].score, 2000)
-        self.assertEqual(board.evaluate_state(1,(0,0),0), 1000)
+        self.assertEqual(board.player2_rows[0].score, 50000000)
+        self.assertEqual(board.evaluate_state(1,(0,0),0), 49999000)
 
         board.remove_move((1,3),2)
-        self.assertEqual(board.player1_rows[0].score, 2000)
+        self.assertEqual(board.player1_rows[0].score, 50000000)
         self.assertEqual(board.player2_rows[0].score, 200)
-        self.assertEqual(board.evaluate_state(1,(0,0),0), -1800)
+        self.assertEqual(board.evaluate_state(1,(0,0),0), -49999800)
 
     # [1,0,0,0,0],
     # [0,1,0,0,0],

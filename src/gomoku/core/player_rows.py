@@ -59,7 +59,14 @@ class Row:
         else:
             score = 10**len(self) * free_spaces
             if len(self) >= 5:
-                score = 10000000
+                score = float('inf')
+            if len(self) == 4:
+                if free_spaces >= 2:
+                    score = 100000000
+                elif free_spaces >= 1:
+                    score = 50000000
+            if len(self) == 3 and free_spaces >= 2:
+                score = 50000000
         self.__potential = score
 
     def __refresh_row(self):

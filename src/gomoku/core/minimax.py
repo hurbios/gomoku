@@ -4,8 +4,8 @@ from gomoku.core.game_board import Board
 from gomoku.core.config import INSPECT_DEPTH, CUTOFFTIME
 from gomoku.core.helper import debug_log
 
-SMALL = -10000000
-LARGE = 10000000
+SMALL = float('-inf')
+LARGE = float('inf')
 
 def has_time_exceeded(start_time):
     current_time = time.time()
@@ -41,7 +41,7 @@ class Minimax:
         if depth <= 0 or time_exceeded:
             return last_move_score, next_moves, time_exceeded
 
-        if last_move_score >= 10000000 or last_move_score <= -10000000:
+        if last_move_score >= 100000000 or last_move_score <= -100000000:
             return last_move_score, next_moves, time_exceeded
 
         low_score = LARGE
