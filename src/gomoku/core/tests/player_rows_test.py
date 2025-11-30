@@ -18,7 +18,7 @@ class TestRow(unittest.TestCase):
 
     def test_moves(self):
         self.assertEqual(self.row.moves, [(2,0),(2,1),(2,2),(2,3)])
-    
+
     def test_str(self):
         self.assertEqual(str(self.row), "[(2, 0), (2, 1), (2, 2), (2, 3)]")
 
@@ -129,15 +129,15 @@ class TestRow(unittest.TestCase):
         row3.add((0,0))
         row.join_row((0,0),row3)
         self.assertEqual(row.moves, [(0,0),(1,1),(2,2),(3,3),(4,4)])
-    
+
     # [0,0,0,0,0],
     # [0,1,0,0,0],
     # [0,0,1,0,0],
     # [0,0,0,1,2]
     # [0,0,0,0,0],
-    def test_row_join(self):
+    def test_row_join2(self):
         row = Row([(1,1)], self.board)
         row.add((2,2))
         row.add((3,3))
-        
+
         self.assertEqual(row.get_touching_building_move((4,3), 'diagonal'), None)

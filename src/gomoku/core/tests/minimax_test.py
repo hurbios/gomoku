@@ -30,7 +30,7 @@ class TestMinimax(unittest.TestCase):
     #     for y,row in enumerate(play):
     #         for x,col in enumerate(row):
     #             self.board.add_move((x,y),col)
-    
+
     def test_get_next_move(self):
         play = [
             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
@@ -57,9 +57,9 @@ class TestMinimax(unittest.TestCase):
         for y,row in enumerate(play):
             for x,col in enumerate(row):
                 self.board.add_move((x,y),col,update_inspect_moves=True)
-        
+
         self.assertIn(self.minimax.get_next_move((3,2)), [(3,3)])
-    
+
     def test_get_next_move_empty_board(self):
         play = [
             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
@@ -86,7 +86,7 @@ class TestMinimax(unittest.TestCase):
         for y,row in enumerate(play):
             for x,col in enumerate(row):
                 self.board.add_move((x,y),col,update_inspect_moves=True)
-        
+
         self.assertIn(self.minimax.get_next_move((0,0)), [(9,9)])
 
     def test_get_next_move_should_block(self):
@@ -115,5 +115,5 @@ class TestMinimax(unittest.TestCase):
         for y,row in enumerate(play):
             for x,col in enumerate(row):
                 self.board.add_move((x,y),col,update_inspect_moves=True)
-        
+
         self.assertIn(self.minimax.get_next_move((6,4)), [(5,3),(9,7)])
