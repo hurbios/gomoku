@@ -24,15 +24,21 @@ class Minimax:
         self.__start_time = time.time()
         self.__current_max_depth = 1
 
-    def __generate_inspect_moves(self, starting_moves, inspect_moves, current_depth):
+    def __generate_inspect_moves(self, starting_moves, inspect_moves, current_depth, surrounding_moves):
         if len(starting_moves) > (self.__current_max_depth - current_depth):
             # print(current_depth, starting_moves, starting_moves[self.__current_max_depth - current_depth])
             yield starting_moves[self.__current_max_depth - current_depth]
-            for move in inspect_moves:
+            for move in surrounding_moves:
                 if move is not starting_moves[self.__current_max_depth - current_depth]:
                     yield move
+            for move in inspect_moves:
+                if move is not starting_moves[self.__current_max_depth - current_depth] or move not in surrounding_moves:
+                    yield move
         else:
-            yield from inspect_moves
+            yield from surrounding_moves
+            for move in inspect_moves:
+                if move not in surrounding_moves:
+                    yield move
 
     def minimax(self, last_move:tuple[int,int], depth:int, is_player1:bool, inspect_moves:set, last_moves, alpha, beta, starting_moves):
         last_move_score = self.__board.evaluate_state(get_player(not is_player1), last_move, depth)
@@ -47,11 +53,11 @@ class Minimax:
         low_score = LARGE
         high_score = SMALL
         return_next_moves = []
-        for coordinates in self.__generate_inspect_moves(starting_moves, inspect_moves, depth):
+        surrounding_moves = self.__board.get_surrounding_free_coordinates(last_move, INSPECT_DEPTH)
+        for coordinates in self.__generate_inspect_moves(starting_moves, inspect_moves, depth, surrounding_moves):
             # time.sleep(10)
             self.__board.add_move(coordinates, get_player(is_player1))
-            new_ispect_moves = self.__board.get_surrounding_free_coordinates(last_move, INSPECT_DEPTH)
-            new_ispect_moves = new_ispect_moves.union(new_ispect_moves)
+            new_ispect_moves = inspect_moves.union(surrounding_moves)
             new_ispect_moves.discard(coordinates)
             (
                 move_score,
@@ -77,18 +83,18 @@ class Minimax:
                 break
         return low_score if is_player1 else high_score, return_next_moves, time_exceeded
 
-    def minimax_iterative_depth(self, starting_moves:tuple[int,int]):
+    def minimax_iterative_depth(self, starting_moves:tuple[int,int], last_move):
         move = None
         high_score = SMALL
         time_exceeded = False
         move_score = 0
         return_next_moves = []
-        for coordinates in self.__generate_inspect_moves(starting_moves, self.__board.inspect_moves, self.__current_max_depth):
+        surrounding_moves = self.__board.get_surrounding_free_coordinates(last_move, INSPECT_DEPTH)
+        for coordinates in self.__generate_inspect_moves(starting_moves, self.__board.inspect_moves, self.__current_max_depth, surrounding_moves):
             if not move:
                 move = coordinates
             self.__board.add_move(coordinates, 2)
-            new_ispect_moves = self.__board.get_surrounding_free_coordinates(coordinates, INSPECT_DEPTH)
-            new_ispect_moves = self.__board.inspect_moves.union(new_ispect_moves)
+            new_ispect_moves = self.__board.inspect_moves.union(surrounding_moves)
             new_ispect_moves.discard(coordinates)
             debug_log(f"{self.__board.inspect_moves} {new_ispect_moves}")
             (
@@ -117,7 +123,7 @@ class Minimax:
         starting_moves = []
         while not time_exceeded and last_move:
             print(f"depth: {self.__current_max_depth}")
-            move, starting_moves, time_exceeded = self.minimax_iterative_depth(starting_moves)
+            move, starting_moves, time_exceeded = self.minimax_iterative_depth(starting_moves, last_move)
             if not time_exceeded:
                 ret_move = move
                 if not ret_move:
