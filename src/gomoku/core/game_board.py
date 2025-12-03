@@ -3,7 +3,7 @@ from itertools import product
 # from typing import Generator
 from gomoku.core.player_rows import Row
 from gomoku.core.directions import DIRECTIONS
-from gomoku.core.config import INSPECT_DEPTH, DEBUG
+from gomoku.core.config import DEBUG
 from gomoku.core.helper import debug_log
 
 
@@ -123,13 +123,16 @@ class Board:
 
         return rows_added
 
-    def __recalculate_inspectable_area_after_move_addition(self, move:tuple[int,int], depth:int):
+    def __recalculate_inspectable_area_after_move_addition(self, move:tuple[int,int]):
         if move in self.__inspect_moves:
             self.__inspect_moves.remove(move)
-        self.__inspect_moves.update(self.get_surrounding_free_coordinates(move, depth))
+        self.__inspect_moves.update(self.get_surrounding_free_coordinates(move))
 
-    # Returns tuple: (True if player piece was added, True if player wins)
     def add_move(self, move:tuple[int, int], player:int, update_inspect_moves:bool = False)->tuple[bool, bool]:
+        """
+        Add a move to board. Refresh/add to rows. Refresh surrounding free moves.
+        Returns tuple: (True if player piece was added, True if player wins)
+        """
         # Check that the move is within the game area boundaries and valid player
         if self.is_outside_of_game_area(move) or player not in [1,2]:
             return False, False
@@ -156,7 +159,7 @@ class Board:
         debug_log(f"added_rows {len(added_rows[len(added_rows)-1])}")
 
         if update_inspect_moves:
-            self.__recalculate_inspectable_area_after_move_addition(move, INSPECT_DEPTH)
+            self.__recalculate_inspectable_area_after_move_addition(move)
 
         for row in added_rows:
             if len(row) >= 5:
@@ -197,25 +200,26 @@ class Board:
         for row in player_rows:
             moves.update(row.moves)
         return moves
-
+    
     def reset(self):
+        """resets the entire board to starting point"""
         self.__moves = [[0 for _ in range(self.__height)] for _ in range(self.__width)]
         self.__player1_rows = []
         self.__player2_rows = []
         self.__inspect_moves = set()
 
-    def get_surrounding_free_coordinates(self, position:tuple[int, int], depth:int=1):
+
+    def get_surrounding_free_coordinates(self, position:tuple[int, int]):
         def surrounding_moves():
-            offset_number_list = list(range(-depth, depth+1))
-            move_offsets = list(product(offset_number_list, repeat=2))
-            move_offsets.remove((0,0))
-            for offset in move_offsets:
+            offsets = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1),
+                       (0, 2), (1, 2), (2, -2), (2, 0), (2, 2), (-2, -2), (-2, 0), (-2, 2), (0, -2),]
+            for offset in offsets:
                 yield (position[0]+offset[0], position[1]+offset[1])
 
         free_coordinates = set()
         for surrounding_move in surrounding_moves():
             if not self.is_outside_of_game_area(surrounding_move):
-                if not self.__moves[surrounding_move[0]][surrounding_move[1]]:
+                if self.is_free_space(surrounding_move):
                     free_coordinates.add(surrounding_move)
 
         return free_coordinates
