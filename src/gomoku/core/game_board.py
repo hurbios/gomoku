@@ -58,6 +58,7 @@ class Board:
         return not self.__moves[move[0]][move[1]]
 
     def is_outside_of_game_area(self, move:tuple[int, int]):
+        """check if the move is inside game area limits"""
         return any(iter([
                 (self.__width <= move[0]),
                 (move[0] < 0),
@@ -66,6 +67,7 @@ class Board:
               ]))
 
     def __get_rows_containing_move(self, move:tuple[int, int], player:int)->list[Row]:
+        """get all the players rows that are containing the move"""
         rows_containing_move = []
         player_rows = self.__player1_rows if player == 1 else self.__player2_rows
         for row in player_rows:
@@ -74,6 +76,7 @@ class Board:
         return rows_containing_move
 
     def __get_players_surrounding_rows_in_directions(self, move:tuple[int, int], player:int)->dict[str, Row]:
+        """get players rows of each direction"""
         def get_surrounding_moves_of_direction(move:tuple[int,int], direction:str)->tuple[tuple[int,int],tuple[int,int]]:
             offset = DIRECTIONS[direction]
             return (
@@ -89,9 +92,12 @@ class Board:
 
         return players_surrounding_rows_in_direction
 
-
-    ## ERROR. The rows are inserted twice if touching
     def __add_building_move_to_rows(self, move:tuple[int, int], player:int):
+        """
+        add move to players rows if the move is building the rows
+        create a new row of 2 pieces if the move is not building but touching the row
+        create a new row of 1 pieces if the move is not touching or building any of the players rows
+        """
         player_rows = self.__get_players_surrounding_rows_in_directions(move, player)
         rows_added = []
         rows_to_remove = []
@@ -124,9 +130,11 @@ class Board:
         return rows_added
 
     def __recalculate_inspectable_area_after_move_addition(self, move:tuple[int,int]):
+        """recalculate the new area that is inspectable after a move is added"""
         if move in self.__inspect_moves:
             self.__inspect_moves.remove(move)
-        self.__inspect_moves.update(self.get_surrounding_free_coordinates(move))
+        surrounding_free_moves = self.get_surrounding_free_coordinates(move)
+        self.__inspect_moves.update(surrounding_free_moves[0].union(surrounding_free_moves[1]))
 
     def add_move(self, move:tuple[int, int], player:int, update_inspect_moves:bool = False)->tuple[bool, bool]:
         """
@@ -168,6 +176,7 @@ class Board:
         return True, False
 
     def __remove_move_from_rows(self, move:tuple[int, int], player:int):
+        """removes move from all rows"""
         rows = self.__get_rows_containing_move(move, player)
         for row in rows:
             if len(row) <= 1:
@@ -184,6 +193,10 @@ class Board:
                         player_rows.remove(row)
 
     def remove_move(self, move:tuple[int, int], player:int):
+        """
+        remove a move from all players rows and from board.
+        refresh row all row potentials after removal that have relation to the move
+        """
         self.__moves[move[0]][move[1]] = 0
         self.__remove_move_from_rows(move, player)
         for row in self.__player1_rows:
@@ -195,6 +208,7 @@ class Board:
                 row.refresh_potential()
 
     def get_player_pieces(self, player:int):
+        """returns all players played moves"""
         moves = set()
         player_rows = self.__player1_rows if player == 1 else self.__player2_rows
         for row in player_rows:
@@ -208,28 +222,44 @@ class Board:
         self.__player2_rows = []
         self.__inspect_moves = set()
 
-
     def get_surrounding_free_coordinates(self, position:tuple[int, int]):
-        def surrounding_moves():
-            offsets = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1),
-                       (0, 2), (1, 2), (2, -2), (2, 0), (2, 2), (-2, -2), (-2, 0), (-2, 2), (0, -2),]
+        """
+        get all the free coordinates that are surrounding the move
+        return in 2 layers, 1st layer is inner circle of moves and 2nd layer is outer cirle of moves
+        """
+        def surrounding_moves(offsets):
             for offset in offsets:
                 yield (position[0]+offset[0], position[1]+offset[1])
 
-        free_coordinates = set()
-        for surrounding_move in surrounding_moves():
+        offsets = ([(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)],
+                    [(0, 2), (1, 2), (2, -2), (2, 0), (2, 2), (-2, -2), (-2, 0), (-2, 2), (0, -2)])
+        free_coordinates_inner = set()
+        free_coordinates_outer = set()
+        for surrounding_move in surrounding_moves(offsets[0]):
             if not self.is_outside_of_game_area(surrounding_move):
                 if self.is_free_space(surrounding_move):
-                    free_coordinates.add(surrounding_move)
+                    free_coordinates_inner.add(surrounding_move)
+        for surrounding_move in surrounding_moves(offsets[1]):
+            if not self.is_outside_of_game_area(surrounding_move):
+                if self.is_free_space(surrounding_move):
+                    free_coordinates_outer.add(surrounding_move)
 
-        return free_coordinates
+        return free_coordinates_inner, free_coordinates_outer
 
+    def get_surrounding_moves_of_moves_rows(self, move:tuple[int,int], player: int)->set[tuple[int,int]]:
+        """get moves that would build players rows related to the move"""
+        rows = self.__get_rows_containing_move(move, player)
+        moves = set()
+        for row in rows:
+            moves.union(row.surrounding_moves)
+        return moves
 
     ############################
     ### Move evaluations #######
     ############################
 
     def is_move_part_of_winning_row(self, move:tuple[int,int], player: int)->bool:
+        """check if move is part of winning row i.e. row that has 5 in a row"""
         rows = self.__get_rows_containing_move(move, player)
         for row in rows:
             if len(row) >= 5:
@@ -237,6 +267,7 @@ class Board:
         return False
 
     def evaluate_state(self, player, move, depth):
+        """sum up the players row potentials so that user rows reduce the score and AI rows increase the score"""
         score = 0
         for row in self.player1_rows:
             score -= row.score

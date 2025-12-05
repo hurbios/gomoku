@@ -25,26 +25,42 @@ class Minimax:
         self.__current_max_depth = 1
         self.__time_exceeded = False
 
-    def __generate_inspect_moves(self, starting_moves, inspect_moves, current_depth, surrounding_moves):
+    def __generate_inspect_moves(self, starting_moves, inspect_moves, current_depth, surrounding_moves, row_surrounding_moves):
         """
         Generator to generate next moves to inspect
         First iterate moves that were deemed as best moves in previous iteration,
-        Then iterate moves that are surrounding the latest move,
+        Then iterate 2 closest building moves of rows related to the latest move,
+        Then iterate moves that are surrounding the latest move first inner layer and then outer layer,
         Lastly iterate through rest of the moves to inspect
         """
         if len(starting_moves) > (self.__current_max_depth - current_depth):
             # print(current_depth, starting_moves, starting_moves[self.__current_max_depth - current_depth])
             yield starting_moves[self.__current_max_depth - current_depth]
-            for move in surrounding_moves:
-                if move != starting_moves[self.__current_max_depth - current_depth]:
+            for move in row_surrounding_moves:
+                if move != row_surrounding_moves[self.__current_max_depth - current_depth]:
+                    yield move
+            for move in surrounding_moves[0]:
+                if (move != starting_moves[self.__current_max_depth - current_depth]) and (move not in row_surrounding_moves):
+                    yield move
+            for move in surrounding_moves[1]:
+                if (move != starting_moves[self.__current_max_depth - current_depth]) and (move not in row_surrounding_moves):
                     yield move
             for move in inspect_moves:
-                if (move != starting_moves[self.__current_max_depth - current_depth]) and (move not in surrounding_moves):
+                if ((move != starting_moves[self.__current_max_depth - current_depth]) and
+                    (move not in surrounding_moves) and
+                    (move not in row_surrounding_moves)):
                     yield move
         else:
-            yield from surrounding_moves
+            yield from row_surrounding_moves
+            for move in surrounding_moves[0]:
+                if  move not in row_surrounding_moves:
+                    yield move
+            for move in surrounding_moves[1]:
+                if  move not in row_surrounding_moves:
+                    yield move
             for move in inspect_moves:
-                if move not in surrounding_moves:
+                if ((move not in surrounding_moves) and
+                    (move not in row_surrounding_moves)):
                     yield move
 
     def minimax(self, last_move:tuple[int,int], depth:int, is_player1:bool, inspect_moves:set, last_moves, alpha, beta, starting_moves):
@@ -62,10 +78,11 @@ class Minimax:
         high_score = SMALL
         return_next_moves = []
         surrounding_moves = self.__board.get_surrounding_free_coordinates(last_move)
-        for coordinates in self.__generate_inspect_moves(starting_moves, inspect_moves, depth, surrounding_moves):
+        row_surrounding_moves = self.__board.get_surrounding_moves_of_moves_rows(last_move, get_player(not is_player1))
+        for coordinates in self.__generate_inspect_moves(starting_moves, inspect_moves, depth, surrounding_moves, row_surrounding_moves):
             # time.sleep(10)
             _, player_wins = self.__board.add_move(coordinates, get_player(is_player1))
-            new_ispect_moves = inspect_moves.union(surrounding_moves)
+            new_ispect_moves = inspect_moves.union(surrounding_moves[0].union(surrounding_moves[1]))
             new_ispect_moves.discard(coordinates)
             (
                 move_score,
@@ -96,11 +113,12 @@ class Minimax:
         move_score = 0
         return_next_moves = []
         surrounding_moves = self.__board.get_surrounding_free_coordinates(last_move)
-        for coordinates in self.__generate_inspect_moves(starting_moves, self.__board.inspect_moves, self.__current_max_depth, surrounding_moves):
+        row_surrounding_moves = self.__board.get_surrounding_moves_of_moves_rows(last_move, get_player(True))
+        for coordinates in self.__generate_inspect_moves(starting_moves, self.__board.inspect_moves, self.__current_max_depth, surrounding_moves, row_surrounding_moves):
             if not move:
                 move = coordinates
             _, player_wins = self.__board.add_move(coordinates, 2)
-            new_ispect_moves = self.__board.inspect_moves.union(surrounding_moves)
+            new_ispect_moves = self.__board.inspect_moves.union(surrounding_moves[0].union(surrounding_moves[1]))
             new_ispect_moves.discard(coordinates)
             debug_log(f"{self.__board.inspect_moves} {new_ispect_moves}")
             (
