@@ -3,14 +3,14 @@ from gomoku.core.helper import debug_log
 
 class Row:
     def __init__(self, moves, board):
-        self._moves = moves #TODO: performancew improve to set
+        self.__moves = moves
         self._direction = None
         self._ends = None
         self.__potential = 0
         self.__board = board
         self.__surrounding_spaces = set()
 
-        if len(self._moves) > 1:
+        if len(self.__moves) > 1:
             self._direction = self.get_direction(moves[0], moves[1])
             self.__refresh_row()
 
@@ -20,7 +20,7 @@ class Row:
 
     @property
     def moves(self):
-        return self._moves
+        return self.__moves
 
     @property
     def ends(self):
@@ -35,14 +35,14 @@ class Row:
         return self.__surrounding_spaces
 
     def __len__(self):
-        return len(self._moves)
+        return len(self.__moves)
 
     def __str__(self):
-        return str(self._moves)
+        return str(self.__moves)
 
     def __refresh_row_ends(self):
         if len(self) > 1:
-            self._ends = (self._moves[0], self._moves[len(self)-1])
+            self._ends = (self.__moves[0], self.__moves[len(self)-1])
         else:
             self._ends = None
 
@@ -70,9 +70,9 @@ class Row:
         self.__potential = score
 
     def __refresh_row(self):
-        if len(self._moves) > 1:
-            debug_log(f"{self._moves}")
-            self._moves.sort()
+        if len(self.__moves) > 1:
+            debug_log(f"{self.__moves}")
+            self.__moves.sort()
         self.__refresh_row_ends()
         if len(self) <= 1:
             self._direction = None
@@ -93,7 +93,7 @@ class Row:
 
     def __get_close_moves(self, move):
         close_moves = []
-        for comparison_move in self._moves:
+        for comparison_move in self.__moves:
             direction = self.get_direction(move, comparison_move)
             if direction:
                 close_moves.append((comparison_move, direction))
@@ -108,30 +108,30 @@ class Row:
         self.__refresh_row()
 
     def add(self, move):
-        if move not in self._moves:
+        if move not in self.__moves:
             if len(self) <= 1 and not self._direction:
-                self._direction = self.get_direction(move, self._moves[0])
-            self._moves.append(move)
+                self._direction = self.get_direction(move, self.__moves[0])
+            self.__moves.append(move)
             self.__refresh_row()
 
     def remove(self, move):
         if move not in self._ends:
-            split_at = self._moves.index(move)
-            debug_log(f"""split row {self._moves} to {self._moves[split_at+1:]}
-                      and {self._moves[:split_at]}, ends: {self._ends}, move: {move}""")
-            new_row = Row(self._moves[split_at+1:], self.__board)
-            self._moves = self._moves[:split_at]
+            split_at = self.__moves.index(move)
+            debug_log(f"""split row {self.__moves} to {self.__moves[split_at+1:]}
+                      and {self.__moves[:split_at]}, ends: {self._ends}, move: {move}""")
+            new_row = Row(self.__moves[split_at+1:], self.__board)
+            self.__moves = self.__moves[:split_at]
             self.__refresh_row()
             return new_row
 
-        debug_log(f"remove {move} from row {self._moves}")
-        self._moves.remove(move)
+        debug_log(f"remove {move} from row {self.__moves}")
+        self.__moves.remove(move)
         self.__refresh_row()
         return None
 
 
     def contains(self, move):
-        return move in self._moves
+        return move in self.__moves
 
     def row_relation(self, move):
         if self.contains(move):
@@ -147,10 +147,10 @@ class Row:
     # should use only if row_relation = touches. No verification for improved performance.
     def get_touching_building_move(self, move, direction):
         comparison_move = (move[0] + DIRECTIONS[direction]['low'][0], move[1] + DIRECTIONS[direction]['low'][1])
-        if comparison_move in self._moves:
+        if comparison_move in self.__moves:
             return comparison_move
         comparison_move = (move[0] + DIRECTIONS[direction]['high'][0], move[1] + DIRECTIONS[direction]['high'][1])
-        if comparison_move in self._moves:
+        if comparison_move in self.__moves:
             return comparison_move
         return None
 

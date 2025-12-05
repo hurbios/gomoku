@@ -229,6 +229,13 @@ class Board:
     ### Move evaluations #######
     ############################
 
+    def is_move_part_of_winning_row(self, move:tuple[int,int], player: int)->bool:
+        rows = self.__get_rows_containing_move(move, player)
+        for row in rows:
+            if len(row) >= 5:
+                return True
+        return False
+
     def evaluate_state(self, player, move, depth):
         score = 0
         for row in self.player1_rows:

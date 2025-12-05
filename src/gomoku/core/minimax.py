@@ -36,10 +36,10 @@ class Minimax:
             # print(current_depth, starting_moves, starting_moves[self.__current_max_depth - current_depth])
             yield starting_moves[self.__current_max_depth - current_depth]
             for move in surrounding_moves:
-                if move is not starting_moves[self.__current_max_depth - current_depth]:
+                if move != starting_moves[self.__current_max_depth - current_depth]:
                     yield move
             for move in inspect_moves:
-                if move is not starting_moves[self.__current_max_depth - current_depth] or move not in surrounding_moves:
+                if (move != starting_moves[self.__current_max_depth - current_depth]) and (move not in surrounding_moves):
                     yield move
         else:
             yield from surrounding_moves
@@ -48,13 +48,14 @@ class Minimax:
                     yield move
 
     def minimax(self, last_move:tuple[int,int], depth:int, is_player1:bool, inspect_moves:set, last_moves, alpha, beta, starting_moves):
-        last_move_score = self.__board.evaluate_state(get_player(not is_player1), last_move, depth)
         next_moves = last_moves + [last_move]
         self.__time_exceeded = has_time_exceeded(self.__start_time)
-        if depth <= 0 or self.__time_exceeded:
-            return last_move_score, next_moves
 
-        if last_move_score >= 100000000 or last_move_score <= -100000000:
+        if self.__board.is_move_part_of_winning_row(last_move, get_player(not is_player1)):
+            return float('-inf') if not is_player1 else float('inf'), next_moves
+        
+        if depth <= 0 or self.__time_exceeded:
+            last_move_score = self.__board.evaluate_state(get_player(not is_player1), last_move, depth)
             return last_move_score, next_moves
 
         low_score = LARGE
@@ -114,9 +115,9 @@ class Minimax:
                 return_next_moves = next_moves
             print(f"{coordinates} score: {move_score}")
             print(next_moves)
-            if self.__time_exceeded:
+            if self.__time_exceeded or move == float('inf'):
                 break
-        return move, return_next_moves
+        return move, return_next_moves, high_score
 
     def get_next_move(self, last_move:tuple[int,int]):
         self.__start_time = time.time()
@@ -127,10 +128,10 @@ class Minimax:
         starting_moves = []
         while not self.__time_exceeded and last_move:
             print(f"depth: {self.__current_max_depth}")
-            move, starting_moves = self.minimax_iterative_depth(starting_moves, last_move)
+            move, starting_moves, score = self.minimax_iterative_depth(starting_moves, last_move)
             if not self.__time_exceeded:
                 move_before_timeout = move
-                if not move_before_timeout:
+                if not move_before_timeout or score == float('inf'):
                     break
             self.__current_max_depth+=1
         return move_before_timeout or (9,9)
