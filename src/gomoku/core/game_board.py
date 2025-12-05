@@ -3,8 +3,6 @@ from itertools import product
 # from typing import Generator
 from gomoku.core.player_rows import Row
 from gomoku.core.directions import DIRECTIONS
-from gomoku.core.config import DEBUG
-from gomoku.core.helper import debug_log
 
 
 class Board:
@@ -33,18 +31,10 @@ class Board:
 
     @property
     def player1_rows(self)->list[Row]:
-        if DEBUG:
-            debug_log('player1 rows')
-            for row in self.__player1_rows:
-                debug_log(row)
         return self.__player1_rows
 
     @property
     def player2_rows(self)->list[Row]:
-        if DEBUG:
-            debug_log('player2 rows')
-            for row in self.__player2_rows:
-                debug_log(row)
         return self.__player2_rows
 
     @property
@@ -164,7 +154,6 @@ class Board:
                 row.refresh_potential()
 
         added_rows = self.__add_building_move_to_rows(move, player)
-        debug_log(f"added_rows {len(added_rows[len(added_rows)-1])}")
 
         if update_inspect_moves:
             self.__recalculate_inspectable_area_after_move_addition(move)
@@ -273,5 +262,4 @@ class Board:
             score -= row.score
         for row in self.player2_rows:
             score += row.score
-        debug_log(f"depth {depth} score after player {player} move {move}: {score}")
         return score

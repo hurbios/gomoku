@@ -3,7 +3,7 @@ import time
 import pygame
 from gomoku.core.minimax import Minimax
 from gomoku.core.game_board import Board
-from gomoku.core.helper import draw
+from gomoku.core.helper import draw, debug_log
 
 ####################
 ####  UI SETUP  ####
@@ -121,15 +121,13 @@ class BoardUI:
         prev_piece = (0,0)
         while True:
             if self.player == 2:
-                time.sleep(0.5)
                 new_piece = self.minimax.get_next_move(prev_piece)
                 can_move, wins = self.board.add_move(new_piece, self.player, update_inspect_moves=True) if new_piece else (None, None)
                 if can_move:
                     self.last_move = new_piece
-                time.sleep(0.1)
-                print("==============================================================================")
-                print("player1: ", self.board.get_player_pieces(1), flush=True)
-                print("player2: ", self.board.get_player_pieces(2), flush=True)
+                debug_log("==============================================================================")
+                debug_log(f"player1: {self.board.get_player_pieces(1)}")
+                debug_log(f"player2: {self.board.get_player_pieces(2)}")
                 draw(self.board)
                 self.actions_after_player_move(can_move, wins)
             else:
@@ -144,7 +142,5 @@ class BoardUI:
                         self.actions_after_player_move(can_move, wins)
                     if event.type == pygame.QUIT:
                         sys.exit()
-            # time.sleep(1)
-            # draw(self.board)
             # Refresh the game UI
             self.draw_game()

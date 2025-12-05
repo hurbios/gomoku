@@ -10,7 +10,7 @@ LARGE = float('inf')
 def has_time_exceeded(start_time):
     current_time = time.time()
     if CUTOFFTIME <= (current_time - start_time):
-        print(CUTOFFTIME, current_time - start_time)
+        debug_log(f"Cutoff time: {CUTOFFTIME}, actual time spent: {current_time - start_time}")
         return True
     return False
 
@@ -34,7 +34,6 @@ class Minimax:
         Lastly iterate through rest of the moves to inspect
         """
         if len(starting_moves) > (self.__current_max_depth - current_depth):
-            # print(current_depth, starting_moves, starting_moves[self.__current_max_depth - current_depth])
             yield starting_moves[self.__current_max_depth - current_depth]
             for move in row_surrounding_moves:
                 if move != row_surrounding_moves[self.__current_max_depth - current_depth]:
@@ -80,7 +79,6 @@ class Minimax:
         surrounding_moves = self.__board.get_surrounding_free_coordinates(last_move)
         row_surrounding_moves = self.__board.get_surrounding_moves_of_moves_rows(last_move, get_player(not is_player1))
         for coordinates in self.__generate_inspect_moves(starting_moves, inspect_moves, depth, surrounding_moves, row_surrounding_moves):
-            # time.sleep(10)
             _, player_wins = self.__board.add_move(coordinates, get_player(is_player1))
             new_ispect_moves = inspect_moves.union(surrounding_moves[0].union(surrounding_moves[1]))
             new_ispect_moves.discard(coordinates)
@@ -120,19 +118,16 @@ class Minimax:
             _, player_wins = self.__board.add_move(coordinates, 2)
             new_ispect_moves = self.__board.inspect_moves.union(surrounding_moves[0].union(surrounding_moves[1]))
             new_ispect_moves.discard(coordinates)
-            debug_log(f"{self.__board.inspect_moves} {new_ispect_moves}")
             (
                 move_score,
                 next_moves
             ) = self.minimax(coordinates, self.__current_max_depth - 1, True, new_ispect_moves, [], SMALL, LARGE, starting_moves)
-            draw(self.__board)
             self.__board.remove_move(coordinates, 2)
             if move_score > high_score:
                 high_score = move_score
                 move = coordinates
                 return_next_moves = next_moves
-            print(f"{coordinates} score: {move_score}")
-            print(next_moves)
+            debug_log(f"{coordinates} score: {move_score}, moves: {next_moves}")
             if self.__time_exceeded or move == float('inf'):
                 break
         return move, return_next_moves, high_score
@@ -145,7 +140,7 @@ class Minimax:
         self.__time_exceeded = False
         starting_moves = []
         while not self.__time_exceeded and last_move:
-            print(f"depth: {self.__current_max_depth}")
+            debug_log(f"-------- depth: {self.__current_max_depth} --------")
             move, starting_moves, score = self.minimax_iterative_depth(starting_moves, last_move)
             if not self.__time_exceeded:
                 move_before_timeout = move

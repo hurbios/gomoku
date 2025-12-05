@@ -1,5 +1,4 @@
 from gomoku.core.directions import DIRECTIONS
-from gomoku.core.helper import debug_log
 
 class Row:
     def __init__(self, moves, board):
@@ -76,7 +75,6 @@ class Row:
     def __refresh_row(self):
         """refresh row potential and row ends"""
         if len(self.__moves) > 1:
-            debug_log(f"{self.__moves}")
             self.__moves.sort()
         self.__refresh_row_ends()
         if len(self) <= 1:
@@ -128,14 +126,11 @@ class Row:
         """remove move from this row"""
         if move not in self._ends:
             split_at = self.__moves.index(move)
-            debug_log(f"""split row {self.__moves} to {self.__moves[split_at+1:]}
-                      and {self.__moves[:split_at]}, ends: {self._ends}, move: {move}""")
             new_row = Row(self.__moves[split_at+1:], self.__board)
             self.__moves = self.__moves[:split_at]
             self.__refresh_row()
             return new_row
 
-        debug_log(f"remove {move} from row {self.__moves}")
         self.__moves.remove(move)
         self.__refresh_row()
         return None
@@ -202,7 +197,6 @@ class Row:
     def next_space_count(self, move, direction, is_out_of_game_fn):
         """check how many spaces the row has around it to build with"""
         spaces = self.next_spaces(direction=direction)
-        debug_log(f"{move} {spaces}")
         count = 0 if is_out_of_game_fn(spaces[0]) or spaces[0] == move else 1
         count += 0 if is_out_of_game_fn(spaces[1]) or spaces[1] == move else 1
         return count
