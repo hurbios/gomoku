@@ -41,13 +41,17 @@ class Row:
         return str(self.__moves)
 
     def __refresh_row_ends(self):
+        """check what are the rows opposite ends"""
         if len(self) > 1:
             self._ends = (self.__moves[0], self.__moves[len(self)-1])
         else:
             self._ends = None
 
-    #TODO: simplified potential calculation for testing. Improve later
     def __refresh_row_potential(self):
+        """
+        calculate and save the potential of this row
+        This is simplified potential calculation for testing. Could improve.
+        """
         free_spaces = 0
         for space in self.next_spaces():
             if not self.__board.is_outside_of_game_area(space):
@@ -70,6 +74,7 @@ class Row:
         self.__potential = score
 
     def __refresh_row(self):
+        """refresh row potential and row ends"""
         if len(self.__moves) > 1:
             debug_log(f"{self.__moves}")
             self.__moves.sort()
@@ -81,8 +86,8 @@ class Row:
     def refresh_potential(self):
         self.__refresh_row_potential()
 
-    # checks the direction of the move compared to provided comparison move
     def get_direction(self, move, comparison_move=None):
+        """checks the direction of the move compared to provided comparison move"""
         if not comparison_move:
             comparison_move = self.moves[0]
         move_offset = (move[0] - comparison_move[0], move[1] - comparison_move[1])
@@ -92,6 +97,7 @@ class Row:
         return None
 
     def __get_close_moves(self, move):
+        """get moves that are close to this row and what is their direction in realtion to this move"""
         close_moves = []
         for comparison_move in self.__moves:
             direction = self.get_direction(move, comparison_move)
@@ -100,7 +106,10 @@ class Row:
         return close_moves
 
     def join_row(self, move, row_to_join):
-        #TODO: create new row if row is not same direction. Append only one in row_to_join if different direction.
+        """
+        creates new row if row is not same direction.
+        Append only one in row_to_join if different direction.
+        """
         self.add(move)
         if self._direction == row_to_join.direction or not row_to_join.direction:
             for m in row_to_join.moves:
@@ -108,6 +117,7 @@ class Row:
         self.__refresh_row()
 
     def add(self, move):
+        """add move to this row"""
         if move not in self.__moves:
             if len(self) <= 1 and not self._direction:
                 self._direction = self.get_direction(move, self.__moves[0])
@@ -115,6 +125,7 @@ class Row:
             self.__refresh_row()
 
     def remove(self, move):
+        """remove move from this row"""
         if move not in self._ends:
             split_at = self.__moves.index(move)
             debug_log(f"""split row {self.__moves} to {self.__moves[split_at+1:]}
@@ -134,6 +145,7 @@ class Row:
         return move in self.__moves
 
     def row_relation(self, move):
+        """check what is the relation of the move to this row"""
         if self.contains(move):
             return 'contains'
         closest_moves = self.__get_close_moves(move)
@@ -144,8 +156,11 @@ class Row:
             return 'touches'
         return None
 
-    # should use only if row_relation = touches. No verification for improved performance.
     def get_touching_building_move(self, move, direction):
+        """
+        get moves that are touching and would build the row i.e. are next in same direction
+        method should only be used if row_relation = touches. No verification for improved performance.
+        """
         comparison_move = (move[0] + DIRECTIONS[direction]['low'][0], move[1] + DIRECTIONS[direction]['low'][1])
         if comparison_move in self.__moves:
             return comparison_move
@@ -154,8 +169,8 @@ class Row:
             return comparison_move
         return None
 
-    #TODO: simplify. No just take comparison move as input
     def next_spaces(self, direction=None):
+        """find the moves that are next moves from this move"""
         if direction:
             comp_move = (self.moves[0],self.moves[0]) if not self._ends else self._ends
             low = (
@@ -185,6 +200,7 @@ class Row:
         return spaces
 
     def next_space_count(self, move, direction, is_out_of_game_fn):
+        """check how many spaces the row has around it to build with"""
         spaces = self.next_spaces(direction=direction)
         debug_log(f"{move} {spaces}")
         count = 0 if is_out_of_game_fn(spaces[0]) or spaces[0] == move else 1
