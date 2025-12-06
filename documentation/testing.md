@@ -7,21 +7,21 @@ The coverage when writing this document is:
 ```
 Name                             Stmts   Miss Branch BrPart  Cover   Missing
 ----------------------------------------------------------------------------
-src/gomoku/core/config.py            3      0      0      0   100%
+src/gomoku/core/config.py            2      0      0      0   100%
 src/gomoku/core/directions.py        1      0      0      0   100%
-src/gomoku/core/game_board.py      173     10     86      4    93%   24, 28, 32, 37-39, 45-47, 109->100, 142
-src/gomoku/core/minimax.py         103      0     40      0   100%
-src/gomoku/core/player_rows.py     139      0     56      1    99%   98->101
+src/gomoku/core/game_board.py      177      4     90      1    98%   22, 26, 30, 143
+src/gomoku/core/minimax.py         125      6     68      6    92%   29-31, 45-46, 61->60, 64->63, 67->66, 112
+src/gomoku/core/player_rows.py     141      0     64      0   100%
 ----------------------------------------------------------------------------
-TOTAL                              419     10    182      5    97%
+TOTAL                              446     10    222      7    97%
 ```
 
 
 # Tested portions
 - The tested portions are mostly currently game board logic and move "goodness" evaluation testing with unit tests.
-- Testing for minimax algorithm is still mostly missing because the algorithm is still under development.
+- Testing for minimax algorithm
     - Testing this has been mostly empirical with game UI. 
-    - This can later be improved to work by inputting values one by one of a game play so that the game can be replayed in different game types.
+    - Unit tests are covering normal situations where the algorithm should detect moves to do. Some tests require more iteration depth so those will take more time than normal CI pipeline has time. Those are then omitted from the normal tests.
     - Should test that the AI can win in situations that should be "easily" winnable with couple of moves and doesn't lose in couple of moves in situations that should be "easily" defendable. Cases TBD later.
 
 

@@ -23,10 +23,11 @@ Options for testing and coverage:
     - Poetry shell: run `poetry shell` and inside shell `pytest`
 - Test coverage
     - For coverage test and report, run a script: `sh test.sh`
+        - This runs tests with env param `ITER_DEPTH=4`. This will increase the test time and can take minutes.
     - There is a Github Actions workflow that runs the coverage (see the badge for coverage percentage)
 
 ## Lint
-- Pylint config is created with: `poetry run pylint --generate-rcfile >> .pylintrc`
+- Pylint config was created with: `poetry run pylint --generate-rcfile >> .pylintrc`
 - The pylint can be run with: `poetry run pylint src`
     - (This might take a few seconds to output something)
 - There is a Github Actions workflow that runs the pylint (click the badge to see results)
@@ -34,4 +35,4 @@ Options for testing and coverage:
 
 ## About Python and Poetry version
 - Used python version is set in Poetry to be ~3.12 because pygame does not support newer versions. Coverage would require Python 3.10+ but this app has not been tested with other than version 3.12 so limiting the version to 3.12)
-- The poetry version needs to be >=2.0.0 because the project is using new pyproject.toml style. More information about the change [here](https://python-poetry.org/blog/announcing-poetry-2.0.0/#supporting-the-project-section-in-pyprojecttoml-pep-621).
+- The poetry version when running this app needs to be >=2.0.0 because the project is using new pyproject.toml style. More information about the poetry project.toml style change [here](https://python-poetry.org/blog/announcing-poetry-2.0.0/#supporting-the-project-section-in-pyprojecttoml-pep-621).
