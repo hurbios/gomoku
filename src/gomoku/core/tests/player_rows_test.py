@@ -79,29 +79,29 @@ class TestRow(unittest.TestCase):
 
         self.assertEqual(board.player1_rows[0].score, 50000000)
         self.assertEqual(board.player2_rows[0].score, 200)
-        self.assertEqual(board.evaluate_state(1,(0,0),0), -49999800)
+        self.assertEqual(board.evaluate_state(), -49999800)
 
         board.add_move((1,3),2)
 
         self.assertEqual(board.player1_rows[0].score, 1000)
         self.assertEqual(board.player2_rows[0].score, 50000000)
-        self.assertEqual(board.evaluate_state(1,(0,0),0), 49999000)
+        self.assertEqual(board.evaluate_state(), 49999000)
 
         board.add_move((5,3),2)
 
         self.assertEqual(board.player1_rows[0].score, 0)
         self.assertEqual(board.player2_rows[0].score, 50000000)
-        self.assertEqual(board.evaluate_state(1,(0,0),0), 50000000)
+        self.assertEqual(board.evaluate_state(), 50000000)
 
         board.remove_move((5,3),2)
         self.assertEqual(board.player1_rows[0].score, 1000)
         self.assertEqual(board.player2_rows[0].score, 50000000)
-        self.assertEqual(board.evaluate_state(1,(0,0),0), 49999000)
+        self.assertEqual(board.evaluate_state(), 49999000)
 
         board.remove_move((1,3),2)
         self.assertEqual(board.player1_rows[0].score, 50000000)
         self.assertEqual(board.player2_rows[0].score, 200)
-        self.assertEqual(board.evaluate_state(1,(0,0),0), -49999800)
+        self.assertEqual(board.evaluate_state(), -49999800)
 
     # [1,0,0,0,0],
     # [0,1,0,0,0],

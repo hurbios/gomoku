@@ -74,9 +74,9 @@ class Minimax:
 
         if self.__board.is_move_part_of_winning_row(last_move, get_player(not is_player1)):
             return float('-inf') if not is_player1 else float('inf'), next_moves
-        
+
         if depth <= 0 or self.__time_exceeded:
-            last_move_score = self.__board.evaluate_state(get_player(not is_player1), last_move, depth)
+            last_move_score = self.__board.evaluate_state()
             return last_move_score, next_moves
 
         low_score = LARGE
@@ -86,7 +86,7 @@ class Minimax:
         row_surrounding_moves = self.__board.get_surrounding_moves_of_moves_rows(last_move, get_player(not is_player1))
         new_ispect_moves = inspect_moves.union(surrounding_moves[0].union(surrounding_moves[1]))
         for coordinates in self.__generate_inspect_moves(starting_moves, inspect_moves, depth, surrounding_moves, row_surrounding_moves):
-            _, player_wins = self.__board.add_move(coordinates, get_player(is_player1))
+            self.__board.add_move(coordinates, get_player(is_player1))
             new_ispect_moves.discard(coordinates)
             (
                 move_score,
@@ -119,10 +119,14 @@ class Minimax:
         return_next_moves = []
         surrounding_moves = self.__board.get_surrounding_free_coordinates(last_move)
         row_surrounding_moves = self.__board.get_surrounding_moves_of_moves_rows(last_move, get_player(True))
-        for coordinates in self.__generate_inspect_moves(starting_moves, self.__board.inspect_moves, self.__current_max_depth, surrounding_moves, row_surrounding_moves):
+        for coordinates in self.__generate_inspect_moves(starting_moves,
+                                                         self.__board.inspect_moves,
+                                                         self.__current_max_depth,
+                                                         surrounding_moves,
+                                                         row_surrounding_moves):
             if not move:
                 move = coordinates
-            _, player_wins = self.__board.add_move(coordinates, 2)
+            self.__board.add_move(coordinates, 2)
             new_ispect_moves = self.__board.inspect_moves.union(surrounding_moves[0].union(surrounding_moves[1]))
             new_ispect_moves.discard(coordinates)
             (

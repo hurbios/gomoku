@@ -89,7 +89,7 @@ class TestMinimax(unittest.TestCase):
         for y,row in enumerate(play):
             for x,col in enumerate(row):
                 self.board.add_move((x,y),col,update_inspect_moves=True)
-        
+
         ai_next_move = self.minimax.get_next_move((6,4))
         self.assertIn(ai_next_move, [(5,3),(9,7)])
         self.board.add_move(ai_next_move, 2, update_inspect_moves=True)
@@ -100,7 +100,7 @@ class TestMinimax(unittest.TestCase):
         ai_next_move =  self.minimax.get_next_move(player_move)
         self.assertEqual(ai_next_move, (4,2) if player_move == (5,3) else (10,8))
         self.board.add_move(ai_next_move, 2, update_inspect_moves=True)
-    
+
     @pytest.mark.skipif(os.environ.get('ITER_DEPTH') and int(os.environ.get('ITER_DEPTH')) < 4, reason='Test requires iteration depth 4')
     def test_get_next_move_should_attack_case1(self):
         play = [

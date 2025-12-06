@@ -1,5 +1,3 @@
-from itertools import product
-# from functools import reduce
 # from typing import Generator
 from gomoku.core.player_rows import Row
 from gomoku.core.directions import DIRECTIONS
@@ -203,7 +201,7 @@ class Board:
         for row in player_rows:
             moves.update(row.moves)
         return moves
-    
+
     def reset(self):
         """resets the entire board to starting point"""
         self.__moves = [[0 for _ in range(self.__height)] for _ in range(self.__width)]
@@ -255,7 +253,7 @@ class Board:
                 return True
         return False
 
-    def evaluate_state(self, player, move, depth):
+    def evaluate_state(self):
         """sum up the players row potentials so that user rows reduce the score and AI rows increase the score"""
         score = 0
         for row in self.player1_rows:
