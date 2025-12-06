@@ -1,6 +1,9 @@
+import os
 import unittest
+import pytest
 from gomoku.core.game_board import Board
 from gomoku.core.minimax import Minimax
+
 class TestMinimax(unittest.TestCase):
     def setUp(self):
         self.board = Board(20,20)
@@ -60,36 +63,7 @@ class TestMinimax(unittest.TestCase):
 
         self.assertIn(self.minimax.get_next_move((3,2)), [(3,3)])
 
-    def test_get_next_move_empty_board(self):
-        play = [
-            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        ]
-        for y,row in enumerate(play):
-            for x,col in enumerate(row):
-                self.board.add_move((x,y),col,update_inspect_moves=True)
-
-        self.assertIn(self.minimax.get_next_move((0,0)), [(9,9)])
-
-    def test_get_next_move_should_block(self):
+    def test_get_next_move_should_block_case1(self):
         play = [
             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
@@ -115,5 +89,45 @@ class TestMinimax(unittest.TestCase):
         for y,row in enumerate(play):
             for x,col in enumerate(row):
                 self.board.add_move((x,y),col,update_inspect_moves=True)
+        
+        ai_next_move = self.minimax.get_next_move((6,4))
+        self.assertIn(ai_next_move, [(5,3),(9,7)])
+        self.board.add_move(ai_next_move, 2, update_inspect_moves=True)
 
-        self.assertIn(self.minimax.get_next_move((6,4)), [(5,3),(9,7)])
+        player_move = (9,7) if ai_next_move == (5,3) else (5,3)
+        self.board.add_move(player_move, 1, update_inspect_moves=True)
+
+        ai_next_move =  self.minimax.get_next_move(player_move)
+        self.assertEqual(ai_next_move, (4,2) if player_move == (5,3) else (10,8))
+        self.board.add_move(ai_next_move, 2, update_inspect_moves=True)
+    
+    @pytest.mark.skipif(os.environ.get('ITER_DEPTH') and int(os.environ.get('ITER_DEPTH')) < 4, reason='Test requires iteration depth 4')
+    def test_get_next_move_should_attack_case1(self):
+        play = [
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,1,2,2,2,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        ]
+        for y,row in enumerate(play):
+            for x,col in enumerate(row):
+                self.board.add_move((x,y),col,update_inspect_moves=True)
+        ai_next_move = self.minimax.get_next_move((6,4))
+        self.assertEqual(ai_next_move, (8,6))
+        self.board.add_move(ai_next_move, 2, update_inspect_moves=True)

@@ -1,19 +1,12 @@
 import time
-from gomoku.core.helper import draw
+import os
 from gomoku.core.game_board import Board
 from gomoku.core.config import CUTOFFTIME
 from gomoku.core.helper import debug_log
 
 SMALL = float('-inf')
 LARGE = float('inf')
-
-def has_time_exceeded(start_time):
-    current_time = time.time()
-    if CUTOFFTIME <= (current_time - start_time):
-        debug_log(f"Cutoff time: {CUTOFFTIME}, actual time spent: {current_time - start_time}")
-        return True
-    return False
-
+ITER_DEPTH = os.environ.get('ITER_DEPTH')
 
 def get_player(is_player1:int)->int:
     return 1 if is_player1 else 2
@@ -24,6 +17,19 @@ class Minimax:
         self.__start_time = time.time()
         self.__current_max_depth = 1
         self.__time_exceeded = False
+
+    def has_time_exceeded(self):
+        current_time = time.time()
+        time_spent = current_time - self.__start_time
+        if ITER_DEPTH:
+            if self.__current_max_depth > int(ITER_DEPTH):
+                debug_log(f"Cutoff with depth {self.__current_max_depth}, time spent: {time_spent}")
+                return True
+        else:
+            if CUTOFFTIME <= time_spent:
+                debug_log(f"Cutoff time: {CUTOFFTIME}, actual time spent: {time_spent}")
+                return True
+        return False
 
     def __generate_inspect_moves(self, starting_moves, inspect_moves, current_depth, surrounding_moves, row_surrounding_moves):
         """
@@ -52,10 +58,10 @@ class Minimax:
         else:
             yield from row_surrounding_moves
             for move in surrounding_moves[0]:
-                if  move not in row_surrounding_moves:
+                if move not in row_surrounding_moves:
                     yield move
             for move in surrounding_moves[1]:
-                if  move not in row_surrounding_moves:
+                if move not in row_surrounding_moves:
                     yield move
             for move in inspect_moves:
                 if ((move not in surrounding_moves) and
@@ -64,7 +70,7 @@ class Minimax:
 
     def minimax(self, last_move:tuple[int,int], depth:int, is_player1:bool, inspect_moves:set, last_moves, alpha, beta, starting_moves):
         next_moves = last_moves + [last_move]
-        self.__time_exceeded = has_time_exceeded(self.__start_time)
+        self.__time_exceeded = self.has_time_exceeded()
 
         if self.__board.is_move_part_of_winning_row(last_move, get_player(not is_player1)):
             return float('-inf') if not is_player1 else float('inf'), next_moves
@@ -78,15 +84,16 @@ class Minimax:
         return_next_moves = []
         surrounding_moves = self.__board.get_surrounding_free_coordinates(last_move)
         row_surrounding_moves = self.__board.get_surrounding_moves_of_moves_rows(last_move, get_player(not is_player1))
+        new_ispect_moves = inspect_moves.union(surrounding_moves[0].union(surrounding_moves[1]))
         for coordinates in self.__generate_inspect_moves(starting_moves, inspect_moves, depth, surrounding_moves, row_surrounding_moves):
             _, player_wins = self.__board.add_move(coordinates, get_player(is_player1))
-            new_ispect_moves = inspect_moves.union(surrounding_moves[0].union(surrounding_moves[1]))
             new_ispect_moves.discard(coordinates)
             (
                 move_score,
                 new_moves
             ) = self.minimax(coordinates, depth-1, not is_player1, new_ispect_moves, next_moves, alpha, beta, starting_moves)
             self.__board.remove_move(coordinates, get_player(is_player1))
+            new_ispect_moves.add(coordinates)
             if is_player1:
                 if move_score < low_score:
                     return_next_moves = new_moves
@@ -136,15 +143,13 @@ class Minimax:
         self.__start_time = time.time()
         self.__current_max_depth = 1
         move = None
-        move_before_timeout = None
         self.__time_exceeded = False
         starting_moves = []
         while not self.__time_exceeded and last_move:
             debug_log(f"-------- depth: {self.__current_max_depth} --------")
             move, starting_moves, score = self.minimax_iterative_depth(starting_moves, last_move)
             if not self.__time_exceeded:
-                move_before_timeout = move
-                if not move_before_timeout or score == float('inf'):
+                if score == float('inf'):
                     break
             self.__current_max_depth+=1
-        return move_before_timeout or (9,9)
+        return move or (9,9)
