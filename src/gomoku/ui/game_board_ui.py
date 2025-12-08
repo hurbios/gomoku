@@ -48,8 +48,8 @@ class BoardUI:
         self.minimax = minimax
         self.last_move = None
 
-    # Draws background and grid
     def draw_game_area(self):
+        """Draws background and grid"""
         self.display.fill(BACKGROUND_COLOR)
 
         for i in range(1,BLOCKS_PER_SIDE):
@@ -69,8 +69,8 @@ class BoardUI:
                 GRID_SIZE
             )
 
-    # Draws one players pieces
     def draw_player_pieces(self,pieces, color):
+        """Draws one players pieces"""
         for piece in pieces:
             pygame.draw.circle(
                 self.display,
@@ -79,8 +79,8 @@ class BoardUI:
                 PIECE_SIZE
             )
 
-    # Draws latest move indicater
     def draw_latest_move_indicator(self):
+        """Draws latest move indicater"""
         if self.last_move:
             pygame.draw.circle(
                 self.display,
@@ -89,8 +89,8 @@ class BoardUI:
                 MARKER_SIZE
             )
 
-    # Draws the game area, player pieces draws additional if some additional drawing is definer
     def draw_game(self,additional_draw=None):
+        """Draws the game area, player pieces draws additional if some additional drawing is definer"""
         self.draw_game_area()
         if additional_draw:
             additional_draw(self)
@@ -99,8 +99,8 @@ class BoardUI:
         self.draw_player_pieces(self.board.get_player_pieces(2), PLAYER2_COLOR)
         pygame.display.flip()
 
-    # Normal game draw but add just a text about the winning player
     def draw_game_win(self):
+        """Normal game draw but add just a text about the winning player"""
         def draw_winning_text(self):
             font = pygame.font.SysFont("Arial", 42)
             text = font.render(f"Player{self.player} wins!", True, (255, 0, 0))
@@ -108,6 +108,10 @@ class BoardUI:
         self.draw_game(draw_winning_text)
 
     def actions_after_player_move(self, can_move, wins):
+        """
+        Perform actions after player has moved based on game status.
+        Either change the player of draw win.
+        """
         if wins:
             self.draw_game_win()
             time.sleep(2)
@@ -116,8 +120,8 @@ class BoardUI:
         if can_move and not wins:
             self.player = 2 if self.player == 1 else 1
 
-    # Main UI loop
     def run(self):
+        """Main UI loop"""
         prev_piece = (0,0)
         while True:
             if self.player == 2:
