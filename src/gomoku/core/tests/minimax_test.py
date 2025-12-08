@@ -102,7 +102,7 @@ class TestMinimax(unittest.TestCase):
         self.board.add_move(ai_next_move, 2, update_inspect_moves=True)
 
     @pytest.mark.skipif(os.environ.get('ITER_DEPTH') and int(os.environ.get('ITER_DEPTH')) < 4, reason='Test requires iteration depth 4')
-    def test_get_next_move_should_attack_case1(self):
+    def test_get_next_move_should_block_case1(self):
         play = [
             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
@@ -131,3 +131,75 @@ class TestMinimax(unittest.TestCase):
         ai_next_move = self.minimax.get_next_move((6,4))
         self.assertEqual(ai_next_move, (8,6))
         self.board.add_move(ai_next_move, 2, update_inspect_moves=True)
+    
+    @pytest.mark.skipif(os.environ.get('ITER_DEPTH') and int(os.environ.get('ITER_DEPTH')) < 4, reason='Test requires iteration depth 4')
+    def test_get_next_move_should_block_case2(self):
+        play = [
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,1,2,2,2,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        ]
+        for y,row in enumerate(play):
+            for x,col in enumerate(row):
+                self.board.add_move((x,y),col,update_inspect_moves=True)
+        ai_next_move = self.minimax.get_next_move((9,7))
+        self.assertEqual(ai_next_move, (10,8))
+        self.board.add_move(ai_next_move, 2, update_inspect_moves=True)
+    
+    @pytest.mark.skipif(os.environ.get('ITER_DEPTH') and int(os.environ.get('ITER_DEPTH')) < 4, reason='Test requires iteration depth 4')
+    def test_get_next_move_should_attack_case1_to_win(self):
+        play = [
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,2,2,2,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        ]
+        for y,row in enumerate(play):
+            for x,col in enumerate(row):
+                self.board.add_move((x,y),col,update_inspect_moves=True)
+        ai_move = self.minimax.get_next_move((7,5))
+        self.assertIn(ai_move, [(6,4),(10,4)])
+        (ok,wins) = self.board.add_move(ai_move, 2, update_inspect_moves=True)
+        self.assertEqual((ok,wins), (True,False))
+        
+        user_move = (10,4) if ai_move == (6,4) else (6,4)
+        (ok,wins) = self.board.add_move(user_move, 1, update_inspect_moves=True)
+        self.assertEqual((ok,wins), (True,False))
+        
+        ai_move = self.minimax.get_next_move(user_move)
+        self.assertEqual(ai_move, (5,4) if user_move == (10,4) else (11,4))
+        (ok,wins) = self.board.add_move(ai_move, 2, update_inspect_moves=True)
+        self.assertEqual((ok,wins), (True,True))
