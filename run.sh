@@ -1,2 +1,2 @@
 #!/bin/bash
-poetry run python3.12 -m gomoku.main
+ITER_DEPTH=4 poetry run python3.12 -m gomoku.main

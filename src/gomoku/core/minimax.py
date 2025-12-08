@@ -19,6 +19,8 @@ class Minimax:
         self.__time_exceeded = False
 
     def has_time_exceeded(self):
+        if self.__time_exceeded:
+            return True
         current_time = time.time()
         time_spent = current_time - self.__start_time
         if ITER_DEPTH:
@@ -69,7 +71,7 @@ class Minimax:
                     yield move
 
     def minimax(self, last_move:tuple[int,int], depth:int, is_player1:bool, inspect_moves:set, last_moves, alpha, beta, starting_moves):
-        next_moves = last_moves + [last_move]
+        next_moves = last_moves + [last_move] if depth != self.__current_max_depth else []
         self.__time_exceeded = self.has_time_exceeded()
 
         if self.__board.is_move_part_of_winning_row(last_move, get_player(not is_player1)):
@@ -94,6 +96,8 @@ class Minimax:
             ) = self.minimax(coordinates, depth-1, not is_player1, new_ispect_moves, next_moves, alpha, beta, starting_moves)
             self.__board.remove_move(coordinates, get_player(is_player1))
             new_ispect_moves.add(coordinates)
+            if depth == self.__current_max_depth:
+                debug_log(f"{coordinates} score: {move_score}, moves: {return_next_moves}")
             if is_player1:
                 if move_score < low_score:
                     return_next_moves = new_moves
@@ -112,47 +116,21 @@ class Minimax:
                 break
         return low_score if is_player1 else high_score, return_next_moves
 
-    def minimax_iterative_depth(self, starting_moves:tuple[int,int], last_move):
-        move = None
-        high_score = SMALL
-        move_score = 0
-        return_next_moves = []
-        surrounding_moves = self.__board.get_surrounding_free_coordinates(last_move)
-        row_surrounding_moves = self.__board.get_surrounding_moves_of_moves_rows(last_move, get_player(True))
-        for coordinates in self.__generate_inspect_moves(starting_moves,
-                                                         self.__board.inspect_moves,
-                                                         self.__current_max_depth,
-                                                         surrounding_moves,
-                                                         row_surrounding_moves):
-            if not move:
-                move = coordinates
-            self.__board.add_move(coordinates, 2)
-            new_ispect_moves = self.__board.inspect_moves.union(surrounding_moves[0].union(surrounding_moves[1]))
-            new_ispect_moves.discard(coordinates)
-            (
-                move_score,
-                next_moves
-            ) = self.minimax(coordinates, self.__current_max_depth - 1, True, new_ispect_moves, [], SMALL, LARGE, starting_moves)
-            self.__board.remove_move(coordinates, 2)
-            if move_score > high_score:
-                high_score = move_score
-                move = coordinates
-                return_next_moves = next_moves
-            debug_log(f"{coordinates} score: {move_score}, moves: {next_moves}")
-            if self.__time_exceeded or move == float('inf'):
-                break
-        return move, return_next_moves, high_score
-
     def get_next_move(self, last_move:tuple[int,int]):
         self.__start_time = time.time()
         self.__current_max_depth = 1
         move = None
         self.__time_exceeded = False
         starting_moves = []
+        biggest = SMALL
+        new_ispect_moves = self.__board.inspect_moves
         while not self.__time_exceeded and last_move:
             debug_log(f"-------- depth: {self.__current_max_depth} --------")
-            move, starting_moves, score = self.minimax_iterative_depth(starting_moves, last_move)
+            score, starting_moves = self.minimax(last_move, self.__current_max_depth, False, new_ispect_moves, [], SMALL, LARGE, starting_moves)
             if not self.__time_exceeded:
+                if (score > biggest) and (len(starting_moves) > 0):
+                    score = max(score, biggest)
+                    move = starting_moves[0]
                 if score == float('inf'):
                     break
             self.__current_max_depth+=1
