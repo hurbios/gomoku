@@ -15,6 +15,8 @@ Options for running:
 - Poetry directly: run `poetry run python3.12 -m gomoku.main`
 - Poetry shell: run `poetry shell` and inside shell `python3.12 -m gomoku.main`
 - Use start script: run `sh run.sh`
+    - This runs the game with env param `ITER_DEPTH=4`. This will iterate 4 moves ahead instead of variable iteration depth based on time.
+- When running without `ITER_DEPTH` parameter iteration time `CUTOFFTIME` can be set in ([config.py](./src/gomoku/core/config.py)).
     
 ## Run unit tests and test coverage
 Options for testing and coverage:

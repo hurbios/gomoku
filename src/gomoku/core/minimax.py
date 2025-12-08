@@ -42,34 +42,33 @@ class Minimax:
         Then iterate moves that are surrounding the latest move first inner layer and then outer layer,
         Lastly iterate through rest of the moves to inspect
         """
+        def filter_starting_moves(self, move):
+            return move != self.starting_moves[self.__current_max_depth - current_depth]
+
+        def filter_row_surrounding_moves(_, move):
+            return move not in row_surrounding_moves
+
+        def filter_surrounding_moves(_, move):
+            return move not in surrounding_moves[0] and move not in surrounding_moves[1]
+
+        conditions = []
         if len(self.starting_moves) > (self.__current_max_depth - current_depth):
+            conditions.append(filter_starting_moves)
             yield self.starting_moves[self.__current_max_depth - current_depth]
-            for move in row_surrounding_moves:
-                if move != row_surrounding_moves[self.__current_max_depth - current_depth]:
-                    yield move
-            for move in surrounding_moves[0]:
-                if (move != self.starting_moves[self.__current_max_depth - current_depth]) and (move not in row_surrounding_moves):
-                    yield move
-            for move in surrounding_moves[1]:
-                if (move != self.starting_moves[self.__current_max_depth - current_depth]) and (move not in row_surrounding_moves):
-                    yield move
-            for move in inspect_moves:
-                if ((move != self.starting_moves[self.__current_max_depth - current_depth]) and
-                    (move not in surrounding_moves) and
-                    (move not in row_surrounding_moves)):
-                    yield move
-        else:
-            yield from row_surrounding_moves
-            for move in surrounding_moves[0]:
-                if move not in row_surrounding_moves:
-                    yield move
-            for move in surrounding_moves[1]:
-                if move not in row_surrounding_moves:
-                    yield move
-            for move in inspect_moves:
-                if ((move not in surrounding_moves) and
-                    (move not in row_surrounding_moves)):
-                    yield move
+        for move in row_surrounding_moves:
+            if all(condition(self, move) for condition in conditions):
+                yield move
+        conditions.append(filter_row_surrounding_moves)
+        for move in surrounding_moves[0]:
+            if all(condition(self,move) for condition in conditions):
+                yield move
+        for move in surrounding_moves[1]:
+            if all(condition(self,move) for condition in conditions):
+                yield move
+        conditions.append(filter_surrounding_moves)
+        for move in inspect_moves:
+            if all(condition(self,move) for condition in conditions):
+                yield move
 
     def minimax(
             self,

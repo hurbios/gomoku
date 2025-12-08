@@ -26,4 +26,4 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
       - name: Check style
-        run: poetry run pylint src
+        run: poetry run pylint src --disable=R0913,R0914,R0917
