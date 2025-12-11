@@ -169,7 +169,7 @@ class Board:
             else:
                 new_row = row.remove(move) # will split to old and new row if move is not at the end of row
                 if new_row:
-                    if len(new_row) > 1 or len(self.__get_rows_containing_move(new_row.moves[0], player)) <= 1:
+                    if len(new_row) > 1 or len(self.__get_rows_containing_move(new_row.moves[0], player)) < 1:
                         self.__get_player_rows_list(player).append(new_row)
                 if len(row) <= 1:
                     if len(self.__get_rows_containing_move(row.moves[0], player)) > 1:

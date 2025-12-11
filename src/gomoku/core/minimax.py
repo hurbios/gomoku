@@ -38,8 +38,8 @@ class Minimax:
         """
         Generator to generate next moves to inspect
         First iterate moves that were deemed as best moves in previous iteration,
-        Then iterate 2 closest building moves of rows related to the latest move,
         Then iterate moves that are surrounding the latest move first inner layer and then outer layer,
+        Then iterate 2 closest building moves of rows related to the latest move,
         Lastly iterate through rest of the moves to inspect
         """
         def filter_starting_moves(self, move):
@@ -55,10 +55,6 @@ class Minimax:
         if len(self.starting_moves) > (self.__current_max_depth - current_depth):
             conditions.append(filter_starting_moves)
             yield self.starting_moves[self.__current_max_depth - current_depth]
-        for move in row_surrounding_moves:
-            if all(condition(self, move) for condition in conditions):
-                yield move
-        conditions.append(filter_row_surrounding_moves)
         for move in surrounding_moves[0]:
             if all(condition(self,move) for condition in conditions):
                 yield move
@@ -66,6 +62,10 @@ class Minimax:
             if all(condition(self,move) for condition in conditions):
                 yield move
         conditions.append(filter_surrounding_moves)
+        for move in row_surrounding_moves:
+            if all(condition(self, move) for condition in conditions):
+                yield move
+        conditions.append(filter_row_surrounding_moves)
         for move in inspect_moves:
             if all(condition(self,move) for condition in conditions):
                 yield move
