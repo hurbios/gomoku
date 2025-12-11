@@ -57,6 +57,8 @@ class Row:
                 self.__surrounding_spaces.add(space)
                 if self.__board.is_free_space(space):
                     free_spaces += 1
+        for move in self.__moves:
+            self.__surrounding_spaces.discard(move)
         if len(self) <= 1:
             score = min(2, free_spaces)
         else:
