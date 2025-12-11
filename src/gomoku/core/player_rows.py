@@ -52,13 +52,12 @@ class Row:
         This is simplified potential calculation for testing. Could improve.
         """
         free_spaces = 0
+        self.__surrounding_spaces = set()
         for space in self.next_spaces():
             if not self.__board.is_outside_of_game_area(space):
                 self.__surrounding_spaces.add(space)
                 if self.__board.is_free_space(space):
                     free_spaces += 1
-        for move in self.__moves:
-            self.__surrounding_spaces.discard(move)
         if len(self) <= 1:
             score = min(2, free_spaces)
         else:

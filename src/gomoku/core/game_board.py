@@ -136,9 +136,6 @@ class Board:
         # Check that no piece exists yet in the move coordinates
         if self.__moves[move[0]][move[1]]:
             return False, False
-        # Check that the player is valid
-        if player not in [1,2]:
-            return False, False
 
         # Add move to players pieces and on game board
         self.__moves[move[0]][move[1]] = player
