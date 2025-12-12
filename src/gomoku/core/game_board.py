@@ -235,7 +235,9 @@ class Board:
         rows = self.__get_rows_containing_move(move, player)
         moves = set()
         for row in rows:
-            moves.union(row.surrounding_moves)
+            for m in row.surrounding_moves:
+                if self.is_free_space(m):
+                    moves.add(m)
         return moves
 
     ############################
