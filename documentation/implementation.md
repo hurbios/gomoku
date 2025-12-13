@@ -238,7 +238,7 @@ stateDiagram-v2
 - Improve UI to show the progress of the move calculation
 
 ## LLM usage
-LLM was used in this project by asking from ChatGPT a general question on how a private class method can be mocked and some Google search automatic AI overview that could not be easily avoided.
+LLM was used in this project only by asking from ChatGPT a general question on how a private class method can be mocked and some Google search automatic AI overview that could not be easily avoided.
 
 ## Sources
 - [1] [Gomoku](https://en.wikipedia.org/wiki/Gomoku)
