@@ -20,6 +20,12 @@ class Minimax:
         self.starting_moves = []
 
     def has_time_exceeded(self):
+        """
+        Method to check if time for minimax iteration has exceeded 
+        or if fixed iteration depth is set if iteration depth is exceeded
+
+        Returns True time or iteration depth is exceeded else False
+        """
         if self.__time_exceeded:
             return True
         current_time = time.time()
@@ -132,6 +138,9 @@ class Minimax:
         return low_score if is_player1 else high_score, return_next_moves
 
     def get_next_move(self, last_move:tuple[int,int]):
+        """
+        Method to start minimax for getting the next best move for AI
+        """
         self.__start_time = time.time()
         self.__current_max_depth = 1
         move = None

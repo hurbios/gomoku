@@ -240,7 +240,11 @@ class Board:
                     moves.add(m)
         return moves
 
-    def get_moves_with_high_score_rows(self):
+    def get_moves_with_high_score_rows(self)->list[tuple[int,int]]:
+        """
+        get moves that would build players rows with highest potential
+        returns list with moves in priority order
+        """
         moves_in_order = []
         for row in self.__player2_rows:
             if row.score >= 50000000:
