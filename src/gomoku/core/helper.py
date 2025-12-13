@@ -45,7 +45,7 @@ def debug_log(to_print:str):
         print(to_print, flush=True)
 
 def log_calc_time(number_of_moves_on_board, time_elapsed):
-        if LOG_TIME:
-            with open('./times.log', 'a') as file:
-                writer = csv.writer(file, delimiter=';')
-                writer.writerow((number_of_moves_on_board, time_elapsed))
+    if LOG_TIME:
+        with open('./times.log', 'a', encoding='UTF-8') as file:
+            writer = csv.writer(file, delimiter=';')
+            writer.writerow((number_of_moves_on_board, time_elapsed))

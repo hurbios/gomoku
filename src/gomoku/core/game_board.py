@@ -239,7 +239,7 @@ class Board:
                 if self.is_free_space(m):
                     moves.add(m)
         return moves
-    
+
     def get_moves_with_high_score_rows(self):
         moves_in_order = []
         for row in self.__player2_rows:

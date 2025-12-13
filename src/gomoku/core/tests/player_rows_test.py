@@ -1,7 +1,7 @@
 import unittest
+from unittest.mock import Mock, MagicMock
 from gomoku.core.player_rows import Row
 from gomoku.core.game_board import Board
-from unittest.mock import Mock, MagicMock
 
 class TestRow(unittest.TestCase):
     def setUp(self):
@@ -162,7 +162,7 @@ class TestRow(unittest.TestCase):
         board.is_outside_of_game_area = MagicMock(return_value=False)
 
         def mock_is_free_space(move):
-            return False if move in blocked_spaces else True
+            return move not in blocked_spaces
         board.is_free_space = mock_is_free_space
 
         row = Row([(1,1)], board)
@@ -200,9 +200,3 @@ class TestRow(unittest.TestCase):
         blocked_spaces.remove((0,0))
         row.refresh_potential()
         self.assertEqual(row.score, 200)
-
-
-
-        
-        
-

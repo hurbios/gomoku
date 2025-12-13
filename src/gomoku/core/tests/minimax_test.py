@@ -62,19 +62,19 @@ class TestMinimax(unittest.TestCase):
                 self.board.add_move((x,y),col,update_inspect_moves=True)
 
         self.assertIn(self.minimax.get_next_move((3,2)), [(3,3)])
-    
+
     def test_has_time_exceeded_exceed_time(self):
         self.minimax = Minimax(self.board)
-        
-        self.minimax._Minimax__time_exceeded = True
-        
+
+        self.minimax._Minimax__time_exceeded = True # pylint: disable=invalid-name
+
         self.assertEqual(self.minimax.has_time_exceeded(), True)
-    
+
     def test_has_time_exceeded_exceed_iter_depth(self):
         self.minimax = Minimax(self.board)
-        
+
         self.minimax._Minimax__current_max_depth = 5
-        
+
         self.assertEqual(self.minimax.has_time_exceeded(), True)
 
     def test_get_next_move_should_block_case1(self):

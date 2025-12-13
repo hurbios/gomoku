@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import Mock, MagicMock
+from unittest.mock import MagicMock
 from gomoku.core.game_board import Board
 from gomoku.ui import game_board_ui
 
@@ -194,10 +194,10 @@ class TestGameBoard(unittest.TestCase):
 
         self.assertEqual(len(self.board.player1_rows), 2)
         self.assertEqual(len(self.board.player2_rows), 6)
-    
+
     def test_add_building_move_to_rows_touching_case(self):
         self.board = Board(6,6)
-        
+
         play = [
             [0,0,1,2,0,0],
             [0,0,1,2,0,0],
@@ -270,7 +270,7 @@ class TestGameBoard(unittest.TestCase):
         self.board.remove_move((2,2),2)
         self.assertEqual(len(self.board.player1_rows), 1)
         self.assertEqual(len(self.board.player2_rows), 1)
-    
+
     def test_remove_move3(self):
         self.board = Board(6,6)
 
@@ -292,7 +292,7 @@ class TestGameBoard(unittest.TestCase):
         self.board.remove_move((2,2),2)
         self.assertEqual(len(self.board.player1_rows), 1)
         self.assertEqual(len(self.board.player2_rows), 2)
-    
+
     def test_get_surrounding_moves_of_moves_rows(self):
         self.board = Board(6,6)
 
@@ -424,7 +424,10 @@ class TestGameBoard(unittest.TestCase):
         board.add_move((0,3),2, True)
         self.assertEqual(board.get_player_pieces(1), {(0,1),(1,3)})
         self.assertEqual(board.get_player_pieces(2), {(0,0),(0,2),(0,3),(0,4)})
-        self.assertEqual(board.inspect_moves, {(1, 2),(2, 1),(1, 5),(1, 4),(2, 3),(0, 5),(2, 5),(2, 4),(3, 1),(1, 1),(2, 0),(0, 6),(3, 3),(2, 6),(2, 2),(1, 0),(1, 6),(3, 5)})
+        self.assertEqual(
+            board.inspect_moves,
+            {(1, 2),(2, 1),(1, 5),(1, 4),(2, 3),(0, 5),(2, 5),(2, 4),(3, 1),(1, 1),(2, 0),(0, 6),(3, 3),(2, 6),(2, 2),(1, 0),(1, 6),(3, 5)}
+        )
 
     def test_is_move_part_of_winning_row(self):
         self.board = Board(6,6)
@@ -443,11 +446,11 @@ class TestGameBoard(unittest.TestCase):
 
         self.assertEqual(self.board.is_move_part_of_winning_row((2,4),2), False)
         self.assertEqual(self.board.is_move_part_of_winning_row((2,5),2), False)
-        
+
         self.board.add_move((2,4),2, True)
         self.assertEqual(self.board.is_move_part_of_winning_row((2,4),2), False)
         self.assertEqual(self.board.is_move_part_of_winning_row((2,5),2), False)
-        
+
         self.board.add_move((2,5),2, True)
         self.assertEqual(self.board.is_move_part_of_winning_row((2,4),2), True)
         self.assertEqual(self.board.is_move_part_of_winning_row((2,5),2), True)
