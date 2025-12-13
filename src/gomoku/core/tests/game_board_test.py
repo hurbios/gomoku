@@ -451,3 +451,20 @@ class TestGameBoard(unittest.TestCase):
         self.board.add_move((2,5),2, True)
         self.assertEqual(self.board.is_move_part_of_winning_row((2,4),2), True)
         self.assertEqual(self.board.is_move_part_of_winning_row((2,5),2), True)
+
+    def test_get_moves_with_high_score_rows(self):
+        self.board = Board(6,6)
+
+        play = [
+            [1,0,0,0,0,0],
+            [2,0,2,1,0,1],
+            [2,0,2,1,0,1],
+            [2,2,2,1,0,1],
+            [2,0,0,1,0,0],
+            [0,0,0,2,0,0]
+        ]
+        for i,row in enumerate(play):
+            for y,col in enumerate(row):
+                self.board.add_move((y,i),col, True)
+
+        self.assertEqual(self.board.get_moves_with_high_score_rows(), [(0, 5), (2, 4), (2, 0), (3, 0), (5, 4), (5, 0)])

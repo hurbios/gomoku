@@ -55,6 +55,10 @@ class Minimax:
         if len(self.starting_moves) > (self.__current_max_depth - current_depth):
             conditions.append(filter_starting_moves)
             yield self.starting_moves[self.__current_max_depth - current_depth]
+        for move in row_surrounding_moves:
+            if all(condition(self, move) for condition in conditions):
+                yield move
+        conditions.append(filter_row_surrounding_moves)
         for move in surrounding_moves[0]:
             if all(condition(self,move) for condition in conditions):
                 yield move
@@ -62,10 +66,6 @@ class Minimax:
             if all(condition(self,move) for condition in conditions):
                 yield move
         conditions.append(filter_surrounding_moves)
-        for move in row_surrounding_moves:
-            if all(condition(self, move) for condition in conditions):
-                yield move
-        conditions.append(filter_row_surrounding_moves)
         for move in inspect_moves:
             if all(condition(self,move) for condition in conditions):
                 yield move
@@ -94,7 +94,8 @@ class Minimax:
         high_score = SMALL
         return_next_moves = []
         surrounding_moves = self.__board.get_surrounding_free_coordinates(last_move)
-        row_surrounding_moves = self.__board.get_surrounding_moves_of_moves_rows(last_move, get_player(not is_player1))
+        # row_surrounding_moves = self.__board.get_surrounding_moves_of_moves_rows(last_move, get_player(not is_player1))
+        row_surrounding_moves = self.__board.get_moves_with_high_score_rows()
         new_ispect_moves = inspect_moves.union(surrounding_moves[0].union(surrounding_moves[1]))
         for coordinates in self.__generate_inspect_moves(inspect_moves, depth, surrounding_moves, row_surrounding_moves):
             self.__board.add_move(coordinates, get_player(is_player1))
