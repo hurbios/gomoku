@@ -27,7 +27,7 @@ graph TD;
     - moves related to the row
     - free spaces around the row
 
-## Algorithms
+## Algorithm
 ### Minimax [2]
 Minimax is the algorithm used to get the best possible next move for the AI. The algorithm is going through all possible moves to a certain depth where the current game status is evaluated. Evaluation is explained in later section. Every other layer is maximizing and every other layer is minimizing. So other player seeks to get as big evaluation score as possible and the other player seeks to get the smallest score as possible. Minimax is turn based algorithm where two players take turns and play optimally. The deepest layer is the evaluation layer. So the algorithm first checks all the possible moves that can be done and then for each of those moves the algorithm checks all possible next moves and so on. This continues until predefined depth, one of the players have winning move or game board is out of moves. 
 
@@ -159,6 +159,17 @@ This minimax enhanced with alpha-beta pruning has time complexity of O($\sqrt{b^
 ### Iterative deepening [4]
 Iterative deepening is used to estimate the best move for next layer. The iterative layer starts from one layer and evaluates that. Then the best evaluation is taken as the first move to be tested in the next iteration with one layer deeper. The best option is taken from that layer for the next iteration and so on. This will continue until predefined time runs out.
 
+### Other move ordering functionality
+There is functionality created to further optimise the alpha-beta pruning. The order of the moves to be checked in minimax is the following:
+- First iterate moves that were deemed as best moves in previous iteration,
+- Then iterate building moves of highest potential rows,
+- Then iterate moves that are surrounding the latest move first inner layer and then outer layer,
+- Lastly iterate through rest of the moves to inspect. These are layer of 2 free spaces surrounding of all the played moves so far.
+
+### O-analysis
+The minimax algorithm with alpha-beta pruning itself is at least $O(\sqrt{b^d})$ and if alpha-beta pruning has no effect $O(b^d)$. Because the alpha-beta pruning is only effective if the order of the moves to be tried is favorable, iterative deepening with other move order arranging functionality is used. This significantly enhances the algorithm performance. However, to keep the track of the game board status, row potentials, and evaluate current status, there is additional time complexity involved with the algorithm functionality. The program is reading and writing multiple times for each move that is in the board at the time of the iteration. So for each iteration there is additional time complexity of $O(k*n)$ where n is number of rows on the board at the time and k is some constant so this becomes $O(n)$. It is also good to keep in mind that b in original formula is changing because the number of spaces increase when the number of played moves increase. How it increases depends on how the game is played and where the moves are placed. Like mentioned earlier there could be first 16 moves to inspect then 28 on next iteration and then 40 and then 52 but this depends on how the game is played or how the moves are checked at that particular time. This would mean that at depth of 4 instead of $b^d = 16^4=65536$ we get $16*28*40*52=931,840$ which is more than 10x the time. If we account for the supporting functionality with at least O(n) this becomes $O((nb)^d)$. If we assume that there are at those iteration times for example 1,2,2,3 rows this would then become $1*16*2*28*2*40*3*52=11182080≈11M$ and this is just in the beginning of the game. This will only increase in the later phases of the game. So it is crucial to get the time complexity closer to $O(\sqrt{(nb)^d})$ rather than $O((nb)^d)$. Because the [performance testing](./testing.md) showed (graph below from testing document) that the average time only slowly increases when game is played further, it can be assumed that algorithm time complexity is closer to $O(\sqrt{(nb)^d})$ except for where the time spikes occur where the order of the moves wasn't favorable for alpha-beta pruning.
+![AVERAGE of time vs. moves from 36 games](avg_time_graph.png "AVERAGE of time vs. moves from 36 games")
+
 ## Move Evaluation
 Current move evaluation is as follows:
 - Row scores of the first player are summed together and the other players row score sum is reduced from the first players sum giving the score of the current game status after the latest move
@@ -172,6 +183,7 @@ Current move evaluation is as follows:
     - if length is 3 and both sides of the row is free space then row potential score is 50000000
 
 ## Program flow
+This is very rough program flow diagram. This only intends to visualize the program flow at high level and not catch all the functionality / details.
 ```mermaid
 stateDiagram-v2
     [*] --> UI
@@ -218,8 +230,15 @@ stateDiagram-v2
     Minimax --> checkWin2: Return AIs next move
 ```
 
+## Improvement opportunities
+- Enhance the alpha-beta pruning by better move order.
+    - Better evaluation and ordering all the rows with next moves to be checked next by the scoring
+    - Automated performance testing
+- Improve evaluation by also checking including discontinued portions in rows such as `_X_XXX_`
+- Improve UI to show the progress of the move calculation
+
 ## LLM usage
-No LLM was used in this project except for some google searches automatic AI overview that could not be easily avoided.
+LLM was used in this project by asking from ChatGPT a general question on how a private class method can be mocked and some Google search automatic AI overview that could not be easily avoided.
 
 ## Sources
 - [1] [Gomoku](https://en.wikipedia.org/wiki/Gomoku)

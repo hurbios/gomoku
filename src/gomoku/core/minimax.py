@@ -38,8 +38,8 @@ class Minimax:
         """
         Generator to generate next moves to inspect
         First iterate moves that were deemed as best moves in previous iteration,
+        Then iterate building moves of highest potential rows,
         Then iterate moves that are surrounding the latest move first inner layer and then outer layer,
-        Then iterate 2 closest building moves of rows related to the latest move,
         Lastly iterate through rest of the moves to inspect
         """
         def filter_starting_moves(self, move):

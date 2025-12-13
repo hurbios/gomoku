@@ -26,7 +26,8 @@ Options for testing and coverage:
 - Test coverage
     - For coverage test and report, run a script: `sh test.sh`
         - This runs tests with env param `ITER_DEPTH=4`. This will increase the test time and can take minutes.
-    - There is a Github Actions workflow that runs the coverage (see the badge for coverage percentage)
+    - There is a Github Actions workflow that runs the coverage with env param `ITER_DEPTH=3` (see the badge for coverage percentage)
+- For performance testing by logging minimax times with iteration depth 4 during manual testing use `sh run_with_time_log.sh` to start the game
 
 ## Lint
 - Pylint config was created with: `poetry run pylint --generate-rcfile >> .pylintrc`
