@@ -1,4 +1,8 @@
+import csv
+import os
 from gomoku.core.config import DEBUG
+
+LOG_TIME = os.environ.get('LOG_TIME')
 
 # Draws the board.
 
@@ -39,3 +43,9 @@ def draw(board, debug:bool=DEBUG):
 def debug_log(to_print:str):
     if DEBUG:
         print(to_print, flush=True)
+
+def log_calc_time(number_of_moves_on_board, time_elapsed):
+        if LOG_TIME:
+            with open('./times.log', 'a') as file:
+                writer = csv.writer(file, delimiter=';')
+                writer.writerow((number_of_moves_on_board, time_elapsed))
