@@ -6,10 +6,9 @@ Program starts from main that intializes GameBoard, Minimax and UI classes. Game
 ```mermaid
 graph TD;
     Main-->UI;
-    Main-->GameBoard;
     GameBoard-->PlayerRow;
     UI-->Minimax;
-    Main-->Minimax;
+    Minimax-->GameBoard;
     UI-->GameBoard;
 ```
 - UI
