@@ -126,7 +126,7 @@ class BoardUI:
         while True:
             if self.player == 2:
                 start_time = time.time()
-                new_piece = self.minimax.get_next_move(prev_piece)
+                new_piece, _ = self.minimax.get_next_move(prev_piece)
                 end_time = time.time()
                 log_calc_time(len(self.board.get_player_pieces(1)) + len(self.board.get_player_pieces(2)), end_time - start_time)
                 can_move, wins = self.board.add_move(new_piece, self.player, update_inspect_moves=True) if new_piece else (None, None)

@@ -167,4 +167,4 @@ class Minimax:
                 if score == float('inf'):
                     break
             self.__current_max_depth+=1
-        return move or (9,9)
+        return move or (9,9), score or float('-inf')

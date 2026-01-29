@@ -9,31 +9,6 @@ class TestMinimax(unittest.TestCase):
         self.board = Board(20,20)
         self.minimax = Minimax(self.board)
 
-    def test_something_in_minimax(self):
-        # 7x7 board:
-        # [0,0,0,0,0,0,0],
-        # [0,0,0,0,0,0,0],
-        # [0,0,1,0,0,0,0],
-        # [0,0,0,0,0,0,0],
-        # [0,0,0,0,0,0,0],
-        # [0,0,0,0,0,0,0],
-        # [0,0,0,0,0,0,0]
-        pass
-
-    # def test_another_thing(self):
-    #     play = [
-    #         [0,0,1,0,0,2,2],
-    #         [0,0,1,2,0,2,2],
-    #         [0,0,1,2,2,0,0],
-    #         [0,0,1,2,0,1,0],
-    #         [2,2,1,0,0,1,0],
-    #         [0,0,0,0,1,1,1],
-    #         [0,0,0,0,0,1,0]
-    #     ]
-    #     for y,row in enumerate(play):
-    #         for x,col in enumerate(row):
-    #             self.board.add_move((x,y),col)
-
     def test_get_next_move(self):
         play = [
             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
@@ -60,8 +35,9 @@ class TestMinimax(unittest.TestCase):
         for y,row in enumerate(play):
             for x,col in enumerate(row):
                 self.board.add_move((x,y),col,update_inspect_moves=True)
-
-        self.assertIn(self.minimax.get_next_move((3,2)), [(3,3)])
+        ai_move, score = self.minimax.get_next_move((3,2))
+        self.assertIn(ai_move, [(3,3)])
+        self.assertEqual(score, float('inf'))
 
     def test_has_time_exceeded_exceed_time(self):
         self.minimax = Minimax(self.board)
@@ -70,6 +46,7 @@ class TestMinimax(unittest.TestCase):
 
         self.assertEqual(self.minimax.has_time_exceeded(), True)
 
+    @pytest.mark.skipif(os.environ.get('ITER_DEPTH') and int(os.environ.get('ITER_DEPTH')) >= 5, reason='Test requires iteration depth < 5')
     def test_has_time_exceeded_exceed_iter_depth(self):
         self.minimax = Minimax(self.board)
 
@@ -104,15 +81,17 @@ class TestMinimax(unittest.TestCase):
             for x,col in enumerate(row):
                 self.board.add_move((x,y),col,update_inspect_moves=True)
 
-        ai_next_move = self.minimax.get_next_move((6,4))
+        ai_next_move, score = self.minimax.get_next_move((6,4))
         self.assertIn(ai_next_move, [(5,3),(9,7)])
+        self.assertNotEqual(score, float('inf'))
         self.board.add_move(ai_next_move, 2, update_inspect_moves=True)
 
         player_move = (9,7) if ai_next_move == (5,3) else (5,3)
         self.board.add_move(player_move, 1, update_inspect_moves=True)
 
-        ai_next_move =  self.minimax.get_next_move(player_move)
+        ai_next_move, score = self.minimax.get_next_move(player_move)
         self.assertEqual(ai_next_move, (4,2) if player_move == (5,3) else (10,8))
+        self.assertNotEqual(score, float('inf'))
         self.board.add_move(ai_next_move, 2, update_inspect_moves=True)
 
     @pytest.mark.skipif(os.environ.get('ITER_DEPTH') and int(os.environ.get('ITER_DEPTH')) < 4, reason='Test requires iteration depth 4')
@@ -142,8 +121,9 @@ class TestMinimax(unittest.TestCase):
         for y,row in enumerate(play):
             for x,col in enumerate(row):
                 self.board.add_move((x,y),col,update_inspect_moves=True)
-        ai_next_move = self.minimax.get_next_move((6,4))
+        ai_next_move, score = self.minimax.get_next_move((6,4))
         self.assertEqual(ai_next_move, (8,6))
+        self.assertNotEqual(score, float('inf'))
         self.board.add_move(ai_next_move, 2, update_inspect_moves=True)
 
     @pytest.mark.skipif(os.environ.get('ITER_DEPTH') and int(os.environ.get('ITER_DEPTH')) < 4, reason='Test requires iteration depth 4')
@@ -173,8 +153,9 @@ class TestMinimax(unittest.TestCase):
         for y,row in enumerate(play):
             for x,col in enumerate(row):
                 self.board.add_move((x,y),col,update_inspect_moves=True)
-        ai_next_move = self.minimax.get_next_move((9,7))
+        ai_next_move, score = self.minimax.get_next_move((9,7))
         self.assertEqual(ai_next_move, (10,8))
+        self.assertNotEqual(score, float('inf'))
         self.board.add_move(ai_next_move, 2, update_inspect_moves=True)
 
     @pytest.mark.skipif(os.environ.get('ITER_DEPTH') and int(os.environ.get('ITER_DEPTH')) < 4, reason='Test requires iteration depth 4')
@@ -204,8 +185,9 @@ class TestMinimax(unittest.TestCase):
         for y,row in enumerate(play):
             for x,col in enumerate(row):
                 self.board.add_move((x,y),col,update_inspect_moves=True)
-        ai_move = self.minimax.get_next_move((7,5))
+        ai_move, score = self.minimax.get_next_move((7,5))
         self.assertIn(ai_move, [(6,4),(10,4)])
+        self.assertEqual(score, float('inf'))
         (ok,wins) = self.board.add_move(ai_move, 2, update_inspect_moves=True)
         self.assertEqual((ok,wins), (True,False))
 
@@ -213,8 +195,9 @@ class TestMinimax(unittest.TestCase):
         (ok,wins) = self.board.add_move(user_move, 1, update_inspect_moves=True)
         self.assertEqual((ok,wins), (True,False))
 
-        ai_move = self.minimax.get_next_move(user_move)
+        ai_move, score = self.minimax.get_next_move(user_move)
         self.assertEqual(ai_move, (5,4) if user_move == (10,4) else (11,4))
+        self.assertEqual(score, float('inf'))
         (ok,wins) = self.board.add_move(ai_move, 2, update_inspect_moves=True)
         self.assertEqual((ok,wins), (True,True))
 
@@ -245,8 +228,41 @@ class TestMinimax(unittest.TestCase):
         for y,row in enumerate(play):
             for x,col in enumerate(row):
                 self.board.add_move((x,y),col,update_inspect_moves=True)
-        ai_next_move = self.minimax.get_next_move((6,4))
+        ai_next_move, score = self.minimax.get_next_move((6,4))
         self.assertEqual(ai_next_move, (10,4))
+        self.assertEqual(score, float('inf'))
+        self.board.add_move(ai_next_move, 2, update_inspect_moves=True)
+    
+    @pytest.mark.skipif(os.environ.get('ITER_DEPTH') and int(os.environ.get('ITER_DEPTH')) < 6, reason='Test requires iteration depth 6')
+    def test_get_next_move_should_attack_case2_with_iter_depth_6(self):
+        play = [
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,1,0,2,2,0,2,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        ]
+        for y,row in enumerate(play):
+            for x,col in enumerate(row):
+                self.board.add_move((x,y),col,update_inspect_moves=True)
+        ai_next_move, score = self.minimax.get_next_move((6,4))
+        self.assertEqual(ai_next_move, (10,4))
+        self.assertEqual(score, float('inf'))
         self.board.add_move(ai_next_move, 2, update_inspect_moves=True)
 
     @pytest.mark.skipif(os.environ.get('ITER_DEPTH') and int(os.environ.get('ITER_DEPTH')) < 4, reason='Test requires iteration depth 4')
@@ -276,8 +292,9 @@ class TestMinimax(unittest.TestCase):
         for y,row in enumerate(play):
             for x,col in enumerate(row):
                 self.board.add_move((x,y),col,update_inspect_moves=True)
-        ai_next_move = self.minimax.get_next_move((12,6))
+        ai_next_move, score = self.minimax.get_next_move((12,6))
         self.assertEqual(ai_next_move, (10,4))
+        self.assertEqual(score, float('inf'))
         self.board.add_move(ai_next_move, 2, update_inspect_moves=True)
 
     @pytest.mark.skipif(os.environ.get('ITER_DEPTH') and int(os.environ.get('ITER_DEPTH')) < 4, reason='Test requires iteration depth 4')
@@ -307,9 +324,12 @@ class TestMinimax(unittest.TestCase):
         for y,row in enumerate(play):
             for x,col in enumerate(row):
                 self.board.add_move((x,y),col,update_inspect_moves=True)
-        ai_next_move = self.minimax.get_next_move((6,4))
+        ai_next_move, score = self.minimax.get_next_move((6,4))
         self.assertEqual(ai_next_move, (12,10))
+        self.assertNotEqual(score, float('inf'))
         self.board.add_move(ai_next_move, 2, update_inspect_moves=True)
         self.board.add_move((15,7), 1, update_inspect_moves=True)
-        ok, win = self.board.add_move(self.minimax.get_next_move((15,7)), 2, update_inspect_moves=True)
+        ai_next_move, score = self.minimax.get_next_move((15,7))
+        self.assertEqual(score, float('inf'))
+        ok, win = self.board.add_move(ai_next_move, 2, update_inspect_moves=True)
         self.assertEqual((ok,win), (True,True))
